@@ -1,0 +1,14 @@
+{
+    name: "pyreflect",
+    authors: [""],
+    license: "mit",
+    version: "1.0",
+    date: "4/9/2016",
+
+    dependencies:[
+        "scipy",
+        "numpy",
+        "matplotlib",
+        "javalang"
+    ]
+}
