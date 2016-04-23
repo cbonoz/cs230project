@@ -1,0 +1,17 @@
+ def findAManager:
+  for each employee in employees:
+   if employee.isManager:
+    return employee
+  return nil
+
+ def findASupervisor:
+  for each employee in employees:
+   if employee.isSupervisor:
+    return employee
+  return nil
+
+ def findAWorkerBee:
+  for each employee in employees:
+   if employee.isWorkerBee:
+    return employee
+  return nil
