@@ -19,12 +19,20 @@ View Project Tree
 Run Code Sniffing Tool
 ---
 
-### Method has too many Commands, ex: ./pyreflect.py -f ../tests/old/proj1 -lm 5
-### Method has too many Parameters, ex: ./pyreflect.py -f ../tests/old/proj1 -lp 2
+Run examples from the pyreflect folder
+
+### Method has too many Commands
+ex: ./pyreflect.py -f ../tests/old/proj1 -lm 5
 
 options:
--f (path to test folder)
+-f (path to test folder),
 -lm N (long method test with max N commands)
+
+### Method has too many Parameters
+ex: ./pyreflect.py -f ../tests/old/proj1 -lp 2
+
+options:
+-f (path to test folder),
 -lp N (long parameter test with max N parameters)
 
 Requirements
