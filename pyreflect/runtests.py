@@ -1,20 +1,21 @@
-import pyreflect
+import codesniffer
 import os, sys
 import json
 
-TEST_DIRECTORY = "./../tests"
+TEST_DIRECTORY = "./../tests/old"#code-smell-examples"
 
-def runtest(f,i):
-    pyreflect.analyze(f,i)
+def runtest(f,test_number):
+    code_sniffer = codesniffer.CodeSniffer(f)
+    code_sniffer.output_program_tree(test_number)
 
 def main():
-    test_folders = [os.path.join(TEST_DIRECTORY,x) for x in os.listdir(TEST_DIRECTORY)]
+    test_folders = [os.path.join(TEST_DIRECTORY,x) for x in os.listdir(TEST_DIRECTORY) if os.path.isdir(os.path.join(TEST_DIRECTORY,x))]
     print("starting tests\n---\n")
-    i=1
+    test_number=1
     for f in test_folders:
-        runtest(f,i)
         print("-"*10)
-        i+=1
+        runtest(f,test_number)
+        test_number+=1
 
     print("---\ndone")
 
