@@ -11,26 +11,60 @@ from collections import Counter
 
 c_dict = None
 
-# Disable
+
+"""
+REFACTOR STRINGS
+"""
+
+LONG_PARAMETER = "Replace Parameter with Method or Introduce Parameter Object"
+LONG_METHOD = "Decompose or Refactor Method"
+GOD_CLASS = "Extract Subclass"
+LAZY_CLASS = "Class should be Merged into Another"
+DUPLICATE_CODE = "Extract Method or Refactor"
+"""
+END REFACTOR STRINGS
+"""
+
+# * Very high threshold for WMC (Weighted Method Count).
+ # * See: Lanza. Object-Oriented Metrics in Practice. Page 16.
+WMC_VERY_HIGH = 47
+WMC_OBJECTS = ["MethodDeclaration", "ConditionalOr", "ConditionalAnd", "IfThenElse", "While", "DoWhile", "SwitchCase", "For", "Try", "Catch", "Conditional"]
+
+ # * Few means between 2 and 5.
+ # * See: Lanza. Object-Oriented Metrics in Practice. Page 18.
+FEW_THRESHOLD = 5
+
+ # * One third is a low value.
+ # * See: Lanza. Object-Oriented Metrics in Practice. Page 17.
+ONE_THIRD_THRESHOLD = 1/3.0
+#self.trees contains all the java file parse trees indexed by filename
+
+# Disable print
 def blockPrint():
     sys.stdout = open(os.devnull, "w")
     sys.stderr = open(os.devnull, "w")
 
-# Restore
+# Restore print
 def enablePrint():
     sys.stdout = sys.__stdout__
     sys.stderr = sys.__stderr__
 
-"""
-analyze
-@param folder: java project folder
-return void
-"""
+
+def arg_check(f):
+    def wrapper(*args, **kw):
+        print("args in decorator: " + str(args))
+        if args[1]>0:
+            return f(*args, **kw)
+        else:
+            return (lambda: print("Error: duplicate code limit must be greater than 0"))
+
+    return wrapper
+
 
 # https://github.com/musiKk/plyj/blob/c27d159b2fffe241a2d091e1be3d79790b216732/example/symbols_visitor.py
-class MyVisitor(m.Visitor):
+class MethodVisitor(m.Visitor):
     def __init__(self):
-        super(MyVisitor, self).__init__()
+        super(MethodVisitor, self).__init__()
         self.first_field = True
         self.first_method = True
         self.methods = []
@@ -39,6 +73,16 @@ class MyVisitor(m.Visitor):
         self.methods.append(method_decl)
         return True
 
+class ClassVisitor(m.Visitor):
+    def __init__(self):
+        super(ClassVisitor, self).__init__()
+        self.first_field = True
+        self.first_method = True
+        self.classes = []
+
+    def visit_ClassDeclaration(self,class_decl):
+        self.classes.append(class_decl)
+        return True  
 
 class CodeSniffer:
     def __init__(self, folder):
@@ -60,6 +104,7 @@ class CodeSniffer:
             self.trees[java_file] = p.parse_file(java_file)
 
         enablePrint()
+        # print("Java files: " + str(self.trees.keys()))
 
     def __str__(self):
         return "CodeSniffer: " + str(self.files)
@@ -97,6 +142,7 @@ class CodeSniffer:
 
 
 
+    @arg_check   
     def long_method_test(self, lim):
         print("Long Method Test (lm=" + str(lim) + ")")
         # print("Excluding comments and whitespace from method line count")
@@ -104,63 +150,181 @@ class CodeSniffer:
 
         for k in self.trees:
             tree = self.trees[k]
-            v= MyVisitor()
+            v= MethodVisitor()
             tree.accept(v)
             for method in v.methods:
-                length = get_method_length(method)
+                length = self.__class__.get_method_length(method)
                 if (length>lim):
-                    print("%s: Method '%s' too long (%d > %d) - recommend reducing len" % (k,method.name, length, lim))
+                    print("%s: Method '%s' lines (%d > %d) - %s" % (k,method.name, length, lim, LONG_METHOD))
 
+    @arg_check
     def long_parameter_test(self, lim):
         print("Long Parameter Test (lp=" + str(lim) + ")")
         
         for k in self.trees:
             tree = self.trees[k]
-            v= MyVisitor()
+            v= MethodVisitor()
             tree.accept(v)
             for method in v.methods:
-                length = get_parameter_length(method)
+                length = self.__class__.get_parameter_length(method)
                 if (length>lim):
-                    print("%s: Method '%s' parameters too long (%d > %d) - recommend reducing len" % (k,method.name, length, lim))
-
-            
-            # print(tree)
-            # for t in tree.type_declarations:
-            #     if t.__class__.__name__ == "ClassDeclaration":
-            #         v = m.Visitor()
-            #         tree.accept(v)
-            #         print(tree.accept(v))
+                    print("%s: Method '%s' parameters (%d > %d) - %s" % (k,method.name, length, lim, LONG_PARAMETER))
 
 
-    # def get_nodes_of_type(self, tree, node_type):
-    #     nodes = []
-
-#Need to fix
-def get_method_length(method):
-    body_elements = method.body
-    c = 0
-    c = len(body_elements) # NOT CORRECT
-    # for node in body_elements:
-    #     _name = node.__class__.__name__
-    #     if _name == "IfThenElse":
-    #         if node.is_true.__class__.__name__ == "Block":
-    #             c += len(node.is_true.statements)
-    #         else:
-    #             c+=1
-    #         if node.is_false:
-    #             if node.is_false.__class__.__name__ == "Block":
-    #                 c += len(node.is_false.statements)
-    #             else:
-    #                 c+=1
-
-    #     else:
-    #         c+=1
-
-    return c
+    @arg_check
+    def lazy_class(self, lim):
+        print("Lazy Class Test (lc=" + str(lim) + ")")
+        for k in self.trees:
+            tree = self.trees[k]
+            v= ClassVisitor()
+            tree.accept(v)
+            cs = v.classes
+            len_cs = len(cs)
+            for i, c in enumerate(cs):
+                length = self.__class__.get_class_length(c)
+                if length<=lim:
+                    print("%s: Class '%s' lazy (%d <= %d) - %s" % (k,c.name,length,lim, LAZY_CLASS))
 
 
-def get_parameter_length(method):
-    return len(method.parameters)
+
+    @arg_check
+    def duplicate_code(self, lim):
+        print("Duplicate Code Test (lp=" + str(lim) + ")")
+        for k in self.trees:
+            tree = self.trees[k]
+            v= MethodVisitor()
+            tree.accept(v)
+            ms = v.methods
+            len_ms = len(ms)
+            for i in range(0,len_ms):
+                for j in range(i,len_ms):
+                    length = self.__class__.method_similarity(ms[i],ms[j])
+                    if length>lim:
+                        print("%s: Similar Code: %s, %s - %s" % (k, ms[i].name, ms[j].name, DUPLICATE_CODE))
+
+    """
+    1. Class uses directly more than a few attributes of other classes.
+    Since ATFD measures how many foreign attributes are used by
+    the class, it is clear that the higher the ATFD value for a class, the
+    higher is the probability that a class is (or is about to become) a
+    God Class.
+    2. Functional complexity of the class is very high. This is expressed
+    using the WMC (Weighted Method Count) metric.
+    3. Class cohesion is low. As a God Class performs several distinct
+    functionalities involving disjunct sets of attributes, this has a negative
+    impact on the class’s cohesion. The threshold indicates that
+    in the detected classes less than one-third of the method pairs
+    have in common the usage of the same attribute.
+    """
+
+  
+    def god_class(self):
+        print("God Class Test")
+
+        for k in self.trees:
+            tree = self.trees[k]
+            v= ClassVisitor()
+            tree.accept(v)
+            cs = v.classes
+            len_cs = len(cs)
+            for i, c in enumerate(cs):
+                self.__class__.check_god_class(c,k)
+                    
+
+ 
+    @staticmethod
+    def check_god_class(c,k):
+        #weghted method count
+        wmc = 0
+        #count of foreign method accesses
+        atfd = 0
+        #measure of method coupling
+        tcc = 0
+
+
+        class_body = c.body
+        methods = [x for x in class_body if x.__class__.__name__ == "MethodDeclaration"]
+
+        for m in methods:
+            method_body = m.body
+            for b in method_body:
+                if is_foreign_call(b) or is_foreign_access(b):
+                    atfd+=1
+                if b.__class__.__name__ in WMC_OBJECTS:
+                    wmc += wmc_count(b)
+
+        methodPairs = count_method_pairs(methods)
+        totalMethodPairs = len(methods) * (len(methods) - 1) / 2;
+        tcc = methodPairs / totalMethodPairs
+
+
+
+        if (wmc >= WMC_VERY_HIGH and atfd > FEW_THRESHOLD and tcc > ONE_THIRD_THRESHOLD):
+            print("%s: %s God Class (WMC=%d, ATFD=%d, TCC=%d) - %s" % (k, c.name, wmc, atfd, tcc, GOD_CLASS))
+        else:
+            print("%s: %s not God Class (WMC=%d, ATFD=%d, TCC=%d)" % (k, c.name,wmc, atfd, tcc))
+
+
+    @staticmethod
+    def method_similarity(method1, method2):
+        #returns if two methods are sufficiently similar to be refactored
+        body1 = method1["body"]
+        body2 = method2["body"]
+        if abs(len(body1) - len(body2)) > 3:
+            return 0 #not similar
+        body1 = set([str(x) for x in body1])
+        body2 = set([str(x) for x in body2])
+        return len(body1.intersection(body2))
+
+    @staticmethod
+    def get_parameter_length(method):
+        return len(method.parameters)
+
+    @staticmethod
+    def get_class_length(c):
+        return len(c["body"])
+
+    #Need to fix
+    @staticmethod
+    def get_method_length(method):
+        body_elements = method.body
+        c = 0
+        c = len(body_elements) # NOT CORRECT
+        # for node in body_elements:
+        #     _name = node.__class__.__name__
+        #     if _name == "IfThenElse":
+        #         if node.is_true.__class__.__name__ == "Block":
+        #             c += len(node.is_true.statements)
+        #         else:
+        #             c+=1
+        #         if node.is_false:
+        #             if node.is_false.__class__.__name__ == "Block":
+        #                 c += len(node.is_false.statements)
+        #             else:
+        #                 c+=1
+
+        #     else:
+        #         c+=1
+
+        return c
+
+
+def is_foreign_access(b):
+    return True
+
+def is_foreign_call(b):
+    return True
+
+def wmc_count(m):
+    count = 0
+
+    return count
+
+
+
+def count_method_pairs(methods):
+    return 0
+
 
 
 def get_node_name(i_name, c_name):
@@ -230,9 +394,6 @@ def analyze_javalang(folder):
         token_values = [t.value for t in tokens]
         for t in tokens:
             print(t)
-
-
-
 
 
 """

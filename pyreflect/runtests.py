@@ -2,7 +2,7 @@ import codesniffer
 import os, sys
 import json
 
-TEST_DIRECTORY = "./../tests/old"#code-smell-examples"
+TEST_DIRECTORY = "./../tests/code-smell-small/"
 
 def runtest(f,test_number):
     code_sniffer = codesniffer.CodeSniffer(f)
