@@ -35,6 +35,16 @@ options:
 -f (path to test folder),
 -lp N (long parameter test with max N parameters)
 
+#### Other Options
+1. -g: Look for God Classes
+2. -lc: Lazy Class - expects minimum statement amount parameter
+3. -d: Duplicate Code - expects minimum line similarity amount parameter
+4. -a: Run all 5 tests (long method, long parameter, lazy class, duplicate code, god class) on project with default parameters.
+5. -t: Print time for parse and tests
+
+
+
+
 Requirements
 ===
 javalang: https://github.com/c2nes/javalang
