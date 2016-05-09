@@ -1,0 +1,8 @@
+src/org/jhotdraw/geom/Geom.java:524:	Avoid long parameter lists.
+src/org/jhotdraw/geom/Geom.java:524:	Avoid long parameter lists.
+src/org/jhotdraw/geom/Geom.java:579:	Avoid long parameter lists.
+src/org/jhotdraw/geom/Geom.java:579:	Avoid long parameter lists.
+src/org/jhotdraw/geom/Geom.java:629:	Avoid long parameter lists.
+src/org/jhotdraw/geom/Geom.java:629:	Avoid long parameter lists.
+src/org/jhotdraw/gui/JSheet.java:825:	Avoid long parameter lists.
+src/org/jhotdraw/gui/JSheet.java:825:	Avoid long parameter lists.
