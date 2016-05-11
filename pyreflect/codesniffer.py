@@ -335,13 +335,13 @@ def get_children(node):
     _name = node.__class__.__name__
     
     if _name == "ClassDeclaration":
-        temp_obj['name'] = get_node_name(node.name,_name)
+        temp_obj['name'] = get_node_name(node.name,"Class")
         body_elements = getattr(node,"body")
         temp_obj['children'] = [get_children(x) for x in body_elements]
     elif _name == "FieldDeclaration" or _name == "VariableDeclaration":
-        temp_obj['name'] = get_node_name(",".join([x.variable.name for x in node.variable_declarators]), _name)
+        temp_obj['name'] = get_node_name(",".join([x.variable.name for x in node.variable_declarators]), "Field")
     elif _name == "MethodDeclaration":
-        temp_obj['name'] = get_node_name(node.name,_name)
+        temp_obj['name'] = get_node_name(node.name,"Method")
         body_elements = getattr(node,"body")
         temp_obj['children'] = [get_children(x) for x in body_elements]
     # elif _name == "IfThenElse":

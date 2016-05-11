@@ -67,10 +67,8 @@ def main():
     
     code_sniffer = CodeSniffer(target_folder)
 
-
     if args.timing:
         time2 = time.time()
-        
         
 
     if run_all:
@@ -106,4 +104,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
