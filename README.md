@@ -6,16 +6,6 @@ Pyreflect
 
 A reflection module for Java written in Python
 
-How to Run
-===
-
-View Project Tree
----
-1. Run the runtests.py script from the pyreflect folder.
-2. Example output from test project 1 (within the tests folder) will be loaded into a json tree
-3. Open the file visualize/tree.html to visualize the project structure
-
-
 Run Code Sniffing Tool
 ---
 
@@ -42,11 +32,36 @@ options:
 -a: Run all 5 tests (long method, long parameter, lazy class, duplicate code, god class) on project with default parameters.
 -t: Print time for parse and tests
 
+Render Visualizations
+---
 
+# Website
 
+From website directory.
+
+1. Run the runtests.py script from the pyreflect folder.
+
+For first time configuration, run the following
+
+1. bower install
+2. gulp bower
+3. gulp build
+
+Gather generated project json files and load into the app/trees folder.
+Json files should be named tree{N}.json
+Start a localhost server to view the visualization webpage (gulp serve from root folder would work for this).
 
 Requirements
 ===
-javalang: https://github.com/c2nes/javalang
-http://modeling-languages.com/uml-tools/#python
+
+## For Command Line Pyreflect tool
+<!-- http://modeling-languages.com/uml-tools/#python -->
+python 2.7 or newer
+scipy, numpy, matplotlib
 plyj: https://github.com/musiKk/plyj
+
+## For Visualization website
+
+node/npm
+bower
+<!-- gulp -->
