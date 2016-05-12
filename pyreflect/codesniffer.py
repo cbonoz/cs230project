@@ -1,4 +1,6 @@
-import javalang
+#!/usr/bin/env python3
+
+# import javalang
 import plyj.parser
 import plyj.model as m
 import os, json, sys
@@ -25,6 +27,11 @@ DUPLICATE_CODE = "Extract Method or Refactor"
 END REFACTOR STRINGS
 """
 
+
+
+"""
+GOD CLASS THRESHOLD VALUES
+"""
 # * Very high threshold for WMC (Weighted Method Count).
  # * See: Lanza. Object-Oriented Metrics in Practice. Page 16.
 WMC_VERY_HIGH = 47
@@ -38,6 +45,9 @@ FEW_THRESHOLD = 5
  # * See: Lanza. Object-Oriented Metrics in Practice. Page 17.
 ONE_THIRD_THRESHOLD = 1/3.0
 #self.trees contains all the java file parse trees indexed by filename
+""" 
+END GOD CLASS THRESHOLD VALUES
+"""
 
 # Disable print
 def blockPrint():
@@ -220,7 +230,6 @@ class CodeSniffer:
   
     def god_class(self):
         print("God Class Test")
-
         for k in self.trees:
             tree = self.trees[k]
             v= ClassVisitor()
@@ -234,6 +243,10 @@ class CodeSniffer:
  
     @staticmethod
     def check_god_class(c,k):
+        """
+        This method uses an approximation to the formal method provided in PMD in order to reduce the number of false positives that are yieldded in the final result. For example, PMD yields ~42 god class detections for the JHotDraw class - this may be by design, but we want to identify the extreme cases
+
+        """
         #weghted method count
         wmc = 0
         #count of foreign method accesses
@@ -243,6 +256,7 @@ class CodeSniffer:
 
 
         class_body = c.body
+        #extract the class method declarations
         methods = [x for x in class_body if x.__class__.__name__ == "MethodDeclaration"]
 
         for m in methods:
@@ -274,37 +288,46 @@ class CodeSniffer:
             return 0 #not similar
         body1 = set([str(x) for x in body1])
         body2 = set([str(x) for x in body2])
-        return len(body1.intersection(body2))
+        similarity_score = len(body1.intersection(body2))
+        print("Similarity %s/%s: %d" % (method1.name, method2.name, similarity_score))
+        return similarity_score
 
     @staticmethod
     def get_parameter_length(method):
-        return len(method.parameters)
+        #number of parameters in the method call
+        return len(method.parameters) 
 
     @staticmethod
     def get_class_length(c):
-        return len(c["body"])
+        #number of declarations in the class body
+        return len(c["body"]) 
 
-    #Need to fix
     @staticmethod
     def get_method_length(method):
         body_elements = method.body
         c = 0
-        c = len(body_elements) # NOT CORRECT
-        # for node in body_elements:
-        #     _name = node.__class__.__name__
-        #     if _name == "IfThenElse":
-        #         if node.is_true.__class__.__name__ == "Block":
-        #             c += len(node.is_true.statements)
-        #         else:
-        #             c+=1
-        #         if node.is_false:
-        #             if node.is_false.__class__.__name__ == "Block":
-        #                 c += len(node.is_false.statements)
-        #             else:
-        #                 c+=1
+        # return len(body_elements) #false
+        for node in body_elements:
+            _name = node.__class__.__name__
+            if _name == "IfThenElse":
+                if node.is_true is not None:
+                    if node.is_true.__class__.__name__ == "Block":
+                        c += len(node.is_true.statements)
+                    else:
+                        c+=1
+                if node.is_false is not None:
+                    if node.is_false.__class__.__name__ == "Block":
+                        c += len(node.is_false.statements)
+                    else:
+                        c+=1
+            elif _name == "Switch":
+                if node.switch_cases is not None:
+                    for case in node.switch_cases:
+                        c+=len(case.body)
 
-        #     else:
-        #         c+=1
+
+            else: #other basic body element type (that doesn't have inner body)
+                c+=1
 
         return c
 
@@ -317,7 +340,6 @@ def is_foreign_call(b):
 
 def wmc_count(m):
     count = 0
-
     return count
 
 
@@ -338,25 +360,36 @@ def get_children(node):
         temp_obj['name'] = get_node_name(node.name,"Class")
         body_elements = getattr(node,"body")
         temp_obj['children'] = [get_children(x) for x in body_elements]
-    elif _name == "FieldDeclaration" or _name == "VariableDeclaration":
+    elif _name in ["FieldDeclaration","VariableDeclaration"]:
         temp_obj['name'] = get_node_name(",".join([x.variable.name for x in node.variable_declarators]), "Field")
     elif _name == "MethodDeclaration":
         temp_obj['name'] = get_node_name(node.name,"Method")
         body_elements = getattr(node,"body")
         temp_obj['children'] = [get_children(x) for x in body_elements]
-    # elif _name == "IfThenElse":
-    #     temp_obj['name'] = _name
-    #     try:
-    #         temp_obj['children'] = [{"name": "if_true", "children": get_children(node.if_true.statements)}]
-    #         if node.if_false:
-    #             temp_obj['children'].append({"name": "if_false", "children": get_children(node.if_false.statements)})
-    #     except:
-    #         temp_obj['children'] = [{"name": node.if_true.__class__.__name__, "children":[]}]
+    elif _name == "IfThenElse":
+        temp_obj['name'] = _name
+        temp_obj['children'] = []
+        if node.if_true is not None:
+            temp_obj['children'].append({"name": "if_true", "children": get_children(node.if_true.statements)})
+        if node.if_false is not None:
+            temp_obj['children'].append({"name": "if_false", "children": get_children(node.if_false.statements)})
+
     else:
         if hasattr(node, "name"):
             temp_obj['name'] = get_node_name(node.name,_name)
         else:
             temp_obj['name'] = _name
+
+        if _name == "Return":
+            if node.result is not None:
+                temp_obj['children'] = get_children(node.result)
+        elif _name == "Assignment":
+            if node.rhs is not None:
+                temp_obj['children'] = get_children(node.rhs)
+        elif _name in ["For", "DoWhile", "While"]:
+            body_elements = getattr(node,"body")
+            temp_obj['children'] = [get_children(x) for x in body_elements]
+
 
     return temp_obj
 
@@ -378,27 +411,27 @@ def parse_types(f_name, types):
         plot_token_types(f_name,body_elements)
 
 
-def analyze_javalang(folder):
-    files = [x for x in os.listdir(folder)]
-    print("Test: " + str(folder))
-    #iterate through all the files in the testfolder
-    for file in files:
-        print("Analyzing: " + str(file))
-        f = open(os.path.join(folder, file), "r")
-        text = f.read()
-        tree = javalang.parse.parse(text)
-        # print(tree)
-        tokens = list(javalang.tokenizer.tokenize(text))
-        # print(tree.package.name)
-        # plot_token_types(file, tokens)
-        token_values = [t.value for t in tokens]
-        for t in tokens:
-            print(t)
+# def analyze_javalang(folder):
+#     #iterate through all the files in the testfolder
+#     files = [x for x in os.listdir(folder)]
+#     print("Test: " + str(folder))
+#     for file in files:
+#         print("Analyzing: " + str(file))
+#         f = open(os.path.join(folder, file), "r")
+#         text = f.read()
+#         tree = javalang.parse.parse(text)
+#         # print(tree)
+#         tokens = list(javalang.tokenizer.tokenize(text))
+#         # print(tree.package.name)
+#         # plot_token_types(file, tokens)
+#         token_values = [t.value for t in tokens]
+#         for t in tokens:
+#             print(t)
 
 
 """
 
-Visualization Helper Functions
+Visualization Helper Functions (plots and graphs via python numpy, scipy, matplotlib)
 
 """
 
@@ -422,4 +455,4 @@ def plot_token_types(_name,tokens):
     plt.show()
 
 
-#TODO: Add more functions for the pyreflect module
+#TODO: Add more visualization functions for the pyreflect module (for non-command line visualization, add support to the website visualization folder via implementation).
