@@ -23,12 +23,16 @@ def create_alias():
         # path = site.getsitepackages()[1]
         # version = str(sys.version_info.major) + "." + str(sys.version_info.minor)
         # pyr_path = path + "/pyreflect-0.1-py"+version+".egg/pyreflect/pyreflect.py"
+        path = ""
         cdir = os.getcwd()
         for p in sys.path:
             if "pyreflect" in p and cdir not in p:
                 print("aliasing: " + p)
                 path = p
                 break
+        if path="":
+          print("Error: could not find python path")
+          return
 
         pyr_path = path + "/pyreflect/pyreflect.py"
         cmds = []
