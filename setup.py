@@ -30,7 +30,7 @@ def create_alias():
                 print("aliasing: " + p)
                 path = p
                 break
-        if path="":
+        if path == "":
           print("Error: could not find python path")
           return
 
