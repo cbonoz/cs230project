@@ -82,14 +82,16 @@ class CodeSniffer:
             # java_file = os.path.join(folder, file)
             if timed:
                 self.time1 = time.time()
+
             blockPrint()
             p = plyj.parser.Parser()
-            self.trees[java_file] = p.parse_file(java_file)
             enablePrint()
-
             if timed:
+                
                 self.time2 = time.time()
                 print('Parsing %s took %0.2fs' %  (java_file, (self.time2-self.time1)*1.0))
+
+            self.trees[java_file] = p.parse_file(java_file)
 
         # enablePrint()
         # print("Java files: " + str(self.trees.keys()))

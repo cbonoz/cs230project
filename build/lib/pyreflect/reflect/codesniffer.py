@@ -143,6 +143,7 @@ class CodeSniffer:
             tree.accept(v)
             for method in v.methods:
                 length = get_method_length(method)
+                # print(method.name, length)
                 if (length>lim):
                     found = True
                     print("%s: Method '%s' lines (%d > %d) - %s" % (k,method.name, length, lim, LONG_METHOD))
@@ -159,8 +160,11 @@ class CodeSniffer:
             tree.accept(v)
             for method in v.methods:
                 length = get_parameter_length(method)
+                # print(method.name, length)
                 if (length>lim):
+                    found = True
                     print("%s: Method '%s' parameters (%d > %d) - %s" % (k,method.name, length, lim, LONG_PARAMETER))
+
         if not found:
             print("No long method parameters found")
 
