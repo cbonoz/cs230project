@@ -11,14 +11,12 @@ angular.module('websiteApp')
   .controller('MainCtrl', function ($scope, fileSystem, jsonGetter, _) {
 
 
-    $scope.folder = "../../trees/"
+    $scope.folder = "./trees/"
     // $scope.folder = "../../../../visualize/trees/"
+    // $scope.folder = "~/app/trees/"
 
 
-    $scope.loadJson = (name) => {
-        
-
-        let tree_file = $scope.folder + name + ".json";
+    $scope.loadJson = (tree_file) => {
         $scope.selected_file = tree_file;
         console.log("loading " + tree_file)
         jsonGetter.fetch(tree_file).then(function(data) {
@@ -32,14 +30,20 @@ angular.module('websiteApp')
         });
     }
 
-    $scope.updateFolder = () => {
-        
+    $scope.$watch('folder', function(newValue, oldValue) {
+        console.log(newValue);
+        $scope.updateFolder();
+    });
 
-        console.log("updating folder, rendering " + $scope.selected_index)
-        $scope.loadJson($scope.selected_index)
+
+    $scope.updateFolder = () => {
+        // $scope.tabs = fileSystem.getFolderContents($scope.folder);
+        let tree_file = $scope.folder + "project_" + ($scope.selected_index+1) + ".json";
+        $scope.loadJson(tree_file);
     }
 
-    $scope.tabs = _.map(_.range(1,11), (x) => { return "output_tree" + x; })
+    $scope.tabs = _.map(_.range(1,11), (x) => { return "project_" + x; })
+    // $scope.tabs = Directory.GetFiles($scope.folder)
     // $scope.tabs = []
 
     $scope.tab_content = '<tree-graph class="full-screen" data="tree_data" ng-hide="bad_data"></tree-graph><h4 ng-show="bad_data">No test file <i>{{tab}}.json</i> found</h4>'

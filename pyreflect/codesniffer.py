@@ -1,18 +1,9 @@
 #!/usr/bin/env python3
 
-# import javalang
-import plyj.parser
-import plyj.model as m
-import os, json, sys
-import numpy as np
-import scipy as sp
-import matplotlib as mp
-import matplotlib.pyplot as plt
-
-from collections import Counter
-
-c_dict = None
-
+from smellutil import *
+# from clint.textui import colored, puts
+# 
+OUTFILE_BASE = "../website/app/trees/project_"
 
 """
 REFACTOR STRINGS
@@ -27,27 +18,6 @@ DUPLICATE_CODE = "Extract Method or Refactor"
 END REFACTOR STRINGS
 """
 
-
-
-"""
-GOD CLASS THRESHOLD VALUES
-"""
-# * Very high threshold for WMC (Weighted Method Count).
- # * See: Lanza. Object-Oriented Metrics in Practice. Page 16.
-WMC_VERY_HIGH = 47
-WMC_OBJECTS = ["MethodDeclaration", "ConditionalOr", "ConditionalAnd", "IfThenElse", "While", "DoWhile", "SwitchCase", "For", "Try", "Catch", "Conditional"]
-
- # * Few means between 2 and 5.
- # * See: Lanza. Object-Oriented Metrics in Practice. Page 18.
-FEW_THRESHOLD = 5
-
- # * One third is a low value.
- # * See: Lanza. Object-Oriented Metrics in Practice. Page 17.
-ONE_THIRD_THRESHOLD = 1/3.0
-#self.trees contains all the java file parse trees indexed by filename
-""" 
-END GOD CLASS THRESHOLD VALUES
-"""
 
 # Disable print
 def blockPrint():
@@ -97,9 +67,7 @@ class ClassVisitor(m.Visitor):
 class CodeSniffer:
     def __init__(self, folder):
         self.folder = folder
-        # self.files = [x for x in os.listdir(folder) if "java" in x]
         self.files = [os.path.join(dp, f) for dp, dn, filenames in os.walk(folder) for f in filenames if os.path.splitext(f)[1] == '.java']
-        # print("Found " + str(len(self.files)) + " java files")
         self.trees = {} #dict of file parse trees (indexed by filename)
 
         if not self.files:
@@ -107,7 +75,7 @@ class CodeSniffer:
             return
 
         # print("Parsing files...")
-        blockPrint()
+        blockPrint() #prevent debug output from parser
         for java_file in self.files:
             # java_file = os.path.join(folder, file)
             p = plyj.parser.Parser()
@@ -121,12 +89,11 @@ class CodeSniffer:
 
 
     def output_program_tree(self, test_num):
-        OUTFILE = "../visualize/trees/output_tree" + str(test_num) + ".json"
         c_dict = {}
         c_dict["name"] = "Test Project " + str(test_num)
         c_dict["children"] = []
         
-        print("Test: " + str(self.folder))
+        # print("Test: " + str(self.folder))
         print(self.files)
         #iterate through all the files in the testfolder
         for k in self.trees:
@@ -146,9 +113,12 @@ class CodeSniffer:
 
 
         #write the tree dictionary to file
-        f = open(OUTFILE, "w")
+        # out_file = "./project_" + str(test_num) + ".json"
+        out_file = OUTFILE_BASE + str(test_num) + ".json"
+        f = open(out_file, "w" )
         f.write(json.dumps(c_dict))
         f.close()
+        print("Wrote %s tree to %s" % (k, out_file))
 
 
 
@@ -163,7 +133,7 @@ class CodeSniffer:
             v= MethodVisitor()
             tree.accept(v)
             for method in v.methods:
-                length = self.__class__.get_method_length(method)
+                length = get_method_length(method)
                 if (length>lim):
                     print("%s: Method '%s' lines (%d > %d) - %s" % (k,method.name, length, lim, LONG_METHOD))
 
@@ -176,7 +146,7 @@ class CodeSniffer:
             v= MethodVisitor()
             tree.accept(v)
             for method in v.methods:
-                length = self.__class__.get_parameter_length(method)
+                length = get_parameter_length(method)
                 if (length>lim):
                     print("%s: Method '%s' parameters (%d > %d) - %s" % (k,method.name, length, lim, LONG_PARAMETER))
 
@@ -184,6 +154,7 @@ class CodeSniffer:
     @arg_check
     def lazy_class(self, lim):
         print("Lazy Class Test (lc=" + str(lim) + ")")
+
         for k in self.trees:
             tree = self.trees[k]
             v= ClassVisitor()
@@ -191,15 +162,17 @@ class CodeSniffer:
             cs = v.classes
             len_cs = len(cs)
             for i, c in enumerate(cs):
-                length = self.__class__.get_class_length(c)
+                length = get_class_length(c)
                 if length<=lim:
                     print("%s: Class '%s' lazy (%d <= %d) - %s" % (k,c.name,length,lim, LAZY_CLASS))
 
 
 
+    #TODO: currently fails
     @arg_check
     def duplicate_code(self, lim):
         print("Duplicate Code Test (lp=" + str(lim) + ")")
+
         for k in self.trees:
             tree = self.trees[k]
             v= MethodVisitor()
@@ -208,27 +181,29 @@ class CodeSniffer:
             len_ms = len(ms)
             for i in range(0,len_ms):
                 for j in range(i,len_ms):
-                    length = self.__class__.method_similarity(ms[i],ms[j])
+                    length = method_similarity(ms[i],ms[j])
                     if length>lim:
                         print("%s: Similar Code: %s, %s - %s" % (k, ms[i].name, ms[j].name, DUPLICATE_CODE))
 
-    """
-    1. Class uses directly more than a few attributes of other classes.
-    Since ATFD measures how many foreign attributes are used by
-    the class, it is clear that the higher the ATFD value for a class, the
-    higher is the probability that a class is (or is about to become) a
-    God Class.
-    2. Functional complexity of the class is very high. This is expressed
-    using the WMC (Weighted Method Count) metric.
-    3. Class cohesion is low. As a God Class performs several distinct
-    functionalities involving disjunct sets of attributes, this has a negative
-    impact on the class’s cohesion. The threshold indicates that
-    in the detected classes less than one-third of the method pairs
-    have in common the usage of the same attribute.
-    """
-
   
     def god_class(self):
+        """
+            1. Class uses directly more than a few attributes of other classes.
+            Since ATFD measures how many foreign attributes are used by
+            the class, it is clear that the higher the ATFD value for a class, the
+            higher is the probability that a class is (or is about to become) a
+            God Class.
+            2. Functional complexity of the class is very high. This is expressed
+            using the WMC (Weighted Method Count) metric.
+            3. Class cohesion is low. As a God Class performs several distinct
+            functionalities involving disjunct sets of attributes, this has a negative
+            impact on the class’s cohesion. The threshold indicates that
+            in the detected classes less than one-third of the method pairs
+            have in common the usage of the same attribute.
+
+            This God Class method uses an approximation to the formal method provided in PMD in order to reduce the number of false positives that are yieldded in the final result. For example, PMD yields ~42 god class detections for the JHotDraw class - this may be by design, but we want to identify the extreme cases
+        """
+
         print("God Class Test")
         for k in self.trees:
             tree = self.trees[k]
@@ -237,222 +212,7 @@ class CodeSniffer:
             cs = v.classes
             len_cs = len(cs)
             for i, c in enumerate(cs):
-                self.__class__.check_god_class(c,k)
+                check_god_class(c,k)
                     
 
  
-    @staticmethod
-    def check_god_class(c,k):
-        """
-        This method uses an approximation to the formal method provided in PMD in order to reduce the number of false positives that are yieldded in the final result. For example, PMD yields ~42 god class detections for the JHotDraw class - this may be by design, but we want to identify the extreme cases
-
-        """
-        #weghted method count
-        wmc = 0
-        #count of foreign method accesses
-        atfd = 0
-        #measure of method coupling
-        tcc = 0
-
-
-        class_body = c.body
-        #extract the class method declarations
-        methods = [x for x in class_body if x.__class__.__name__ == "MethodDeclaration"]
-
-        for m in methods:
-            method_body = m.body
-            for b in method_body:
-                if is_foreign_call(b) or is_foreign_access(b):
-                    atfd+=1
-                if b.__class__.__name__ in WMC_OBJECTS:
-                    wmc += wmc_count(b)
-
-        methodPairs = count_method_pairs(methods)
-        totalMethodPairs = len(methods) * (len(methods) - 1) / 2;
-        tcc = methodPairs / totalMethodPairs
-
-
-
-        if (wmc >= WMC_VERY_HIGH and atfd > FEW_THRESHOLD and tcc > ONE_THIRD_THRESHOLD):
-            print("%s: %s God Class (WMC=%d, ATFD=%d, TCC=%d) - %s" % (k, c.name, wmc, atfd, tcc, GOD_CLASS))
-        else:
-            print("%s: %s not God Class (WMC=%d, ATFD=%d, TCC=%d)" % (k, c.name,wmc, atfd, tcc))
-
-
-    @staticmethod
-    def method_similarity(method1, method2):
-        #returns if two methods are sufficiently similar to be refactored
-        body1 = method1["body"]
-        body2 = method2["body"]
-        if abs(len(body1) - len(body2)) > 3:
-            return 0 #not similar
-        body1 = set([str(x) for x in body1])
-        body2 = set([str(x) for x in body2])
-        similarity_score = len(body1.intersection(body2))
-        print("Similarity %s/%s: %d" % (method1.name, method2.name, similarity_score))
-        return similarity_score
-
-    @staticmethod
-    def get_parameter_length(method):
-        #number of parameters in the method call
-        return len(method.parameters) 
-
-    @staticmethod
-    def get_class_length(c):
-        #number of declarations in the class body
-        return len(c["body"]) 
-
-    @staticmethod
-    def get_method_length(method):
-        body_elements = method.body
-        c = 0
-        # return len(body_elements) #false
-        for node in body_elements:
-            _name = node.__class__.__name__
-            if _name == "IfThenElse":
-                if node.is_true is not None:
-                    if node.is_true.__class__.__name__ == "Block":
-                        c += len(node.is_true.statements)
-                    else:
-                        c+=1
-                if node.is_false is not None:
-                    if node.is_false.__class__.__name__ == "Block":
-                        c += len(node.is_false.statements)
-                    else:
-                        c+=1
-            elif _name == "Switch":
-                if node.switch_cases is not None:
-                    for case in node.switch_cases:
-                        c+=len(case.body)
-
-
-            else: #other basic body element type (that doesn't have inner body)
-                c+=1
-
-        return c
-
-
-def is_foreign_access(b):
-    return True
-
-def is_foreign_call(b):
-    return True
-
-def wmc_count(m):
-    count = 0
-    return count
-
-
-
-def count_method_pairs(methods):
-    return 0
-
-
-
-def get_node_name(i_name, c_name):
-    return i_name + " (" + c_name + ")" 
-
-def get_children(node):   
-    temp_obj = {}
-    _name = node.__class__.__name__
-    
-    if _name == "ClassDeclaration":
-        temp_obj['name'] = get_node_name(node.name,"Class")
-        body_elements = getattr(node,"body")
-        temp_obj['children'] = [get_children(x) for x in body_elements]
-    elif _name in ["FieldDeclaration","VariableDeclaration"]:
-        temp_obj['name'] = get_node_name(",".join([x.variable.name for x in node.variable_declarators]), "Field")
-    elif _name == "MethodDeclaration":
-        temp_obj['name'] = get_node_name(node.name,"Method")
-        body_elements = getattr(node,"body")
-        temp_obj['children'] = [get_children(x) for x in body_elements]
-    elif _name == "IfThenElse":
-        temp_obj['name'] = _name
-        temp_obj['children'] = []
-        if node.if_true is not None:
-            temp_obj['children'].append({"name": "if_true", "children": get_children(node.if_true.statements)})
-        if node.if_false is not None:
-            temp_obj['children'].append({"name": "if_false", "children": get_children(node.if_false.statements)})
-
-    else:
-        if hasattr(node, "name"):
-            temp_obj['name'] = get_node_name(node.name,_name)
-        else:
-            temp_obj['name'] = _name
-
-        if _name == "Return":
-            if node.result is not None:
-                temp_obj['children'] = get_children(node.result)
-        elif _name == "Assignment":
-            if node.rhs is not None:
-                temp_obj['children'] = get_children(node.rhs)
-        elif _name in ["For", "DoWhile", "While"]:
-            body_elements = getattr(node,"body")
-            temp_obj['children'] = [get_children(x) for x in body_elements]
-
-
-    return temp_obj
-
-def parse_class(c_name, c):
-    body_elements = getattr(c,"body")
-    plot_token_types(c_name,body_elements)
-    for b in body_elements:
-        if b.__class__.__name__ == "ClassDeclaration":
-            parse_class(b.name, b)
-
-
-def parse_types(f_name, types):
-    for t in types:
-        print(t._fields)
-        # for field in t._fields:
-        #     print(field+"\n---")
-        #     print(getattr(t,field))
-        body_elements = getattr(t,"body")
-        plot_token_types(f_name,body_elements)
-
-
-# def analyze_javalang(folder):
-#     #iterate through all the files in the testfolder
-#     files = [x for x in os.listdir(folder)]
-#     print("Test: " + str(folder))
-#     for file in files:
-#         print("Analyzing: " + str(file))
-#         f = open(os.path.join(folder, file), "r")
-#         text = f.read()
-#         tree = javalang.parse.parse(text)
-#         # print(tree)
-#         tokens = list(javalang.tokenizer.tokenize(text))
-#         # print(tree.package.name)
-#         # plot_token_types(file, tokens)
-#         token_values = [t.value for t in tokens]
-#         for t in tokens:
-#             print(t)
-
-
-"""
-
-Visualization Helper Functions (plots and graphs via python numpy, scipy, matplotlib)
-
-"""
-
-
-
-def plot_token_types(_name,tokens):
-    counter = Counter([x.__class__.__name__ for x in tokens]).most_common()
-    print(_name + ": " + str(counter))
-    token_names, token_counts = zip(*counter[::-1])
-
-    # Plot histogram using matplotlib barh().
-    indexes = np.arange(len(token_names))
-    width = 1
-    plt.figure(figsize=(16,9))
-    plt.barh(indexes, token_counts, width)
-    plt.yticks(indexes + width * 0.5, token_names)
-    plt.xlabel("Frequency")
-
-    plt.title(str(_name) + " Composition")
-    plt.grid(True)
-    plt.show()
-
-
-#TODO: Add more visualization functions for the pyreflect module (for non-command line visualization, add support to the website visualization folder via implementation).

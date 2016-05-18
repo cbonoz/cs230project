@@ -16,7 +16,7 @@ angular.module('websiteApp')
   window.resolveLocalFileSystemURL  = window.resolveLocalFileSystemURL || window.webkitResolveLocalFileSystemURL;
   
   window.requestFileSystem = window.webkitRequestFileSystem || window.requestFileSystem;
-  window.webkitStorageInfo = window.webkitStorageInfo || {
+  window.websitebkitStorageInfo = window.webkitStorageInfo || {
     requestQuota: function(type, bytes, successFn, errorFn) {
       errorFn(new Error("Not implemented"));
     }

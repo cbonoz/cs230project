@@ -14,6 +14,11 @@ def main():
 
     parser = argparse.ArgumentParser()
 
+    parser.add_argument('-f', action='store', default=None,
+                        dest='target_folder',
+                        help='Target project folder',
+                        required=True)
+
     parser.add_argument('-lm', action='store', dest='long_method_limit', default=-1,
                         help='Run long method test with limit value')
 
@@ -27,22 +32,21 @@ def main():
     parser.add_argument('-d', action='store', dest='duplicate_code', default=-1,
                         help='Detect duplicate method code with number of similar lines')
 
-
-
     parser.add_argument('-g', action='store_true', dest='god_class', default=False,
                         help='Detect God Classes if present')
 
-    parser.add_argument('-f', action='store', default=None,
-                        dest='target_folder',
-                        help='Target project folder')
+    parser.add_argument('-p', action='store_true', dest='program_tree', default=False,
+                        help='Build Program Tree for the folder')
+
+
 
     parser.add_argument('-a', action='store_true', default=False,
                         dest='run_all',
-                        help='Run all tests with defaults')
+                        help='Run all smell tests with defaults')
 
     parser.add_argument('-t', action='store_true', default=False,
                         dest='timing',
-                        help='Run all tests with timing')
+                        help='Run pyreflect with performance timing')
 
     parser.add_argument('--version', action='version', version='%(prog)s 1.0')
 
@@ -54,6 +58,7 @@ def main():
     lc_limit = int(args.lazy_class_limit)
     dup_limit = int(args.duplicate_code)
     god_class = bool(args.god_class)
+    prog_tree = bool(args.program_tree)
 
     run_all = bool(args.run_all)
 
@@ -64,7 +69,9 @@ def main():
     
     if args.timing:
         time1 = time.time()
-    
+
+
+    #only load the parse tree once
     code_sniffer = CodeSniffer(target_folder)
 
     if args.timing:
@@ -79,7 +86,7 @@ def main():
         code_sniffer.lazy_class(2)
         code_sniffer.god_class()
     else:
-
+        #run individual tests
         if lm_limit>0:
             code_sniffer.long_method_test(lm_limit)
 
@@ -92,9 +99,11 @@ def main():
         if dup_limit>0:
             code_sniffer.duplicate_code(dup_code)
 
-
         if god_class:
             code_sniffer.god_class()
+
+        if prog_tree:
+            code_sniffer.output_program_tree(1)
  
     # print("---\ndone")
     if args.timing:

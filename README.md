@@ -31,6 +31,9 @@ ex: ./pyreflect.py -f ../tests/old/proj1 -lp 2
 * -a: Run all 5 tests (long method, long parameter, lazy class, duplicate code, god class) on project with default parameters.
 * -t: Print time for parse and test(s) execution 
 
+#### For Command Line help
+
+./pyreflect -h
 
 <!-- # Website -->
 Render Visualizations

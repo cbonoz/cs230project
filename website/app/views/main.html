@@ -24,10 +24,10 @@
  -->
 
  <md-content>
-  <h3>Test Results: <input id="path" ng-model="folder" type="text" placeholder="{{folder}}" cols="100"/>  <button type="submit" ng-click="updateFolder()" class="btn btn-success">Load Folder</button></h3>
-  <p>Program will render up to 10 test projects located in given directory</p>
+  <h3>Test Results: <input id="path" ng-model="folder" type="text" placeholder="{{folder}}" cols="100"/>  <button type="submit" class="btn btn-success">Load Folder</button></h3>
+  <p>Program will render up to 10 test project json files located in given directory. Files should follow 'project_N.json' naming format.</p>
     <md-tabs md-dynamic-height="" md-border-bottom="" md-selected="selected_index">
-     <md-tab label="{{tab}}" ng-repeat="tab in tabs" md-on-select="loadJson(tab)">
+     <md-tab label="{{tab}}" ng-repeat="tab in tabs" md-on-select="updateFolder()">
       </md-tab>
     </md-tabs>
 
