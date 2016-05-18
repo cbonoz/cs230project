@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from smellutil import *
+from .smellutil import *
 # from clint.textui import colored, puts
 # 
 OUTFILE_BASE = "../website/app/trees/project_"
@@ -30,15 +30,15 @@ def enablePrint():
     sys.stderr = sys.__stderr__
 
 
-def arg_check(f):
-    def wrapper(*args, **kw):
-        print("args in decorator: " + str(args))
-        if args[1]>0:
-            return f(*args, **kw)
-        else:
-            return (lambda: print("Error: duplicate code limit must be greater than 0"))
+# def arg_check(f):
+#     def wrapper(*args, **kw):
+#         print("args in decorator: " + str(args))
+#         if args[1]>0:
+#             return f(*args, **kw)
+#         else:
+#             return (lambda: print("Error: duplicate code limit must be greater than 0"))
 
-    return wrapper
+#     return wrapper
 
 
 # https://github.com/musiKk/plyj/blob/c27d159b2fffe241a2d091e1be3d79790b216732/example/symbols_visitor.py
@@ -71,7 +71,7 @@ class CodeSniffer:
         self.trees = {} #dict of file parse trees (indexed by filename)
 
         if not self.files:
-            print("Error: No Java files found in " + str(folder))
+            print(("Error: No Java files found in " + str(folder)))
             return
 
         # print("Parsing files...")
@@ -94,14 +94,14 @@ class CodeSniffer:
         c_dict["children"] = []
         
         # print("Test: " + str(self.folder))
-        print(self.files)
+        print((self.files))
         #iterate through all the files in the testfolder
         for k in self.trees:
             tree = self.trees[k]
             print("===packages===")
-            print(tree.package_declaration)
+            print((tree.package_declaration))
             print("===imports===")
-            print(tree.import_declarations)
+            print((tree.import_declarations))
             # print("===types===")
             # print(tree.type_declarations)
             print("===list of declared types===")
@@ -118,13 +118,12 @@ class CodeSniffer:
         f = open(out_file, "w" )
         f.write(json.dumps(c_dict))
         f.close()
-        print("Wrote %s tree to %s" % (k, out_file))
+        print(("Wrote %s tree to %s" % (k, out_file)))
 
 
 
-    @arg_check   
     def long_method_test(self, lim):
-        print("Long Method Test (lm=" + str(lim) + ")")
+        print(("Long Method Test (lm=" + str(lim) + ")"))
         # print("Excluding comments and whitespace from method line count")
         # print("* Currently If/Else, Inline Declarations treated as one element *")
 
@@ -135,11 +134,10 @@ class CodeSniffer:
             for method in v.methods:
                 length = get_method_length(method)
                 if (length>lim):
-                    print("%s: Method '%s' lines (%d > %d) - %s" % (k,method.name, length, lim, LONG_METHOD))
+                    print(("%s: Method '%s' lines (%d > %d) - %s" % (k,method.name, length, lim, LONG_METHOD)))
 
-    @arg_check
     def long_parameter_test(self, lim):
-        print("Long Parameter Test (lp=" + str(lim) + ")")
+        print(("Long Parameter Test (lp=" + str(lim) + ")"))
         
         for k in self.trees:
             tree = self.trees[k]
@@ -148,12 +146,12 @@ class CodeSniffer:
             for method in v.methods:
                 length = get_parameter_length(method)
                 if (length>lim):
-                    print("%s: Method '%s' parameters (%d > %d) - %s" % (k,method.name, length, lim, LONG_PARAMETER))
+                    print(("%s: Method '%s' parameters (%d > %d) - %s" % (k,method.name, length, lim, LONG_PARAMETER)))
 
 
-    @arg_check
+  
     def lazy_class(self, lim):
-        print("Lazy Class Test (lc=" + str(lim) + ")")
+        print(("Lazy Class Test (lc=" + str(lim) + ")"))
 
         for k in self.trees:
             tree = self.trees[k]
@@ -164,14 +162,13 @@ class CodeSniffer:
             for i, c in enumerate(cs):
                 length = get_class_length(c)
                 if length<=lim:
-                    print("%s: Class '%s' lazy (%d <= %d) - %s" % (k,c.name,length,lim, LAZY_CLASS))
+                    print(("%s: Class '%s' lazy (%d <= %d) - %s" % (k,c.name,length,lim, LAZY_CLASS)))
 
 
 
     #TODO: currently fails
-    @arg_check
     def duplicate_code(self, lim):
-        print("Duplicate Code Test (lp=" + str(lim) + ")")
+        print(("Duplicate Code Test (lp=" + str(lim) + ")"))
 
         for k in self.trees:
             tree = self.trees[k]
@@ -183,26 +180,10 @@ class CodeSniffer:
                 for j in range(i,len_ms):
                     length = method_similarity(ms[i],ms[j])
                     if length>lim:
-                        print("%s: Similar Code: %s, %s - %s" % (k, ms[i].name, ms[j].name, DUPLICATE_CODE))
+                        print(("%s: Similar Code: %s, %s - %s" % (k, ms[i].name, ms[j].name, DUPLICATE_CODE)))
 
   
     def god_class(self):
-        """
-            1. Class uses directly more than a few attributes of other classes.
-            Since ATFD measures how many foreign attributes are used by
-            the class, it is clear that the higher the ATFD value for a class, the
-            higher is the probability that a class is (or is about to become) a
-            God Class.
-            2. Functional complexity of the class is very high. This is expressed
-            using the WMC (Weighted Method Count) metric.
-            3. Class cohesion is low. As a God Class performs several distinct
-            functionalities involving disjunct sets of attributes, this has a negative
-            impact on the class’s cohesion. The threshold indicates that
-            in the detected classes less than one-third of the method pairs
-            have in common the usage of the same attribute.
-
-            This God Class method uses an approximation to the formal method provided in PMD in order to reduce the number of false positives that are yieldded in the final result. For example, PMD yields ~42 god class detections for the JHotDraw class - this may be by design, but we want to identify the extreme cases
-        """
 
         print("God Class Test")
         for k in self.trees:

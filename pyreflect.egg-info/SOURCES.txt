@@ -1,0 +1,13 @@
+setup.py
+pyreflect/__init__.py
+pyreflect/pyreflect.py
+pyreflect.egg-info/PKG-INFO
+pyreflect.egg-info/SOURCES.txt
+pyreflect.egg-info/dependency_links.txt
+pyreflect.egg-info/not-zip-safe
+pyreflect.egg-info/requires.txt
+pyreflect.egg-info/top_level.txt
+pyreflect/reflect/__init__.py
+pyreflect/reflect/codesniffer.py
+pyreflect/reflect/runtests.py
+pyreflect/reflect/smellutil.py

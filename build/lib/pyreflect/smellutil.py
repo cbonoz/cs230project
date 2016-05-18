@@ -1,10 +1,11 @@
 import plyj.parser
 import plyj.model as m
 import os, json, sys
-import numpy as np
-import scipy as sp
-import matplotlib as mp
-import matplotlib.pyplot as plt
+import sys, argparse, time
+# import numpy as np
+# import scipy as sp
+# import matplotlib as mp
+# import matplotlib.pyplot as plt
 
 from collections import Counter
 
@@ -75,9 +76,9 @@ def check_god_class(c,k):
 
 
     if (wmc >= WMC_VERY_HIGH and atfd > FEW_THRESHOLD and tcc > ONE_THIRD_THRESHOLD):
-        print("%s: %s God Class (WMC=%d, ATFD=%d, TCC=%d) - %s" % (k, c.name, wmc, atfd, tcc, GOD_CLASS))
+        print(("%s: %s God Class (WMC=%d, ATFD=%d, TCC=%d) - %s" % (k, c.name, wmc, atfd, tcc, GOD_CLASS)))
     else:
-        print("%s: %s Not God Class (WMC=%d, ATFD=%d, TCC=%d)" % (k, c.name,wmc, atfd, tcc))
+        print(("%s: %s Not God Class (WMC=%d, ATFD=%d, TCC=%d)" % (k, c.name,wmc, atfd, tcc)))
 
 """
 
@@ -95,7 +96,7 @@ def method_similarity(method1, method2):
     body1 = set([str(x) for x in body1])
     body2 = set([str(x) for x in body2])
     similarity_score = len(body1.intersection(body2))
-    print("Similarity %s/%s: %d" % (method1.name, method2.name, similarity_score))
+    print(("Similarity %s/%s: %d" % (method1.name, method2.name, similarity_score)))
     return similarity_score
 
 
@@ -157,7 +158,7 @@ def wmc_count(m):
 #returns similarity of methods
 def count_method_pairs(methods):
     for m in methods:
-        print("%s: %s" % (m.name, str(m)))
+        print(("%s: %s" % (m.name, str(m))))
     return 0
 
 

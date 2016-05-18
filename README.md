@@ -73,3 +73,11 @@ Requirements
 * node/npm
 * bower
 <!-- gulp -->
+
+
+To Install
+---
+
+1. Git clone this repository
+2. Run the following sudo python setup.py install --record files.txt
+3. 

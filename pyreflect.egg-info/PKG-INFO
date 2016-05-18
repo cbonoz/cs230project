@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: pyreflect
+Version: 0.1
+Summary: A Reflection module for Java written in Python
+Home-page: https://github.com/cbonoz/cs230project
+Author: Pyreflect
+Author-email: chrisdistrict@gmail.com
+License: MIT
+Description: UNKNOWN
+Platform: UNKNOWN
