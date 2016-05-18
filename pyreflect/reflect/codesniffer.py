@@ -65,23 +65,33 @@ class ClassVisitor(m.Visitor):
         return True  
 
 class CodeSniffer:
-    def __init__(self, folder):
+    def __init__(self, folder, timed=False):
         self.folder = folder
         self.files = [os.path.join(dp, f) for dp, dn, filenames in os.walk(folder) for f in filenames if os.path.splitext(f)[1] == '.java']
         self.trees = {} #dict of file parse trees (indexed by filename)
+        self.time1 = None
+        self.time2 = None
 
         if not self.files:
             print("Error: No Java files found in " + str(folder))
             return
 
         # print("Parsing files...")
-        blockPrint() #prevent debug output from parser
+        # blockPrint() #prevent debug output from parser
         for java_file in self.files:
             # java_file = os.path.join(folder, file)
+            if timed:
+                self.time1 = time.time()
+            blockPrint()
             p = plyj.parser.Parser()
             self.trees[java_file] = p.parse_file(java_file)
+            enablePrint()
 
-        enablePrint()
+            if timed:
+                self.time2 = time.time()
+                print('Parsing %s took %0.2fs' %  (java_file, (self.time2-self.time1)*1.0))
+
+        # enablePrint()
         # print("Java files: " + str(self.trees.keys()))
 
     def __str__(self):
@@ -126,33 +136,43 @@ class CodeSniffer:
         print("Long Method Test (lm=" + str(lim) + ")")
         # print("Excluding comments and whitespace from method line count")
         # print("* Currently If/Else, Inline Declarations treated as one element *")
-
+        found = False
         for k in self.trees:
             tree = self.trees[k]
             v= MethodVisitor()
             tree.accept(v)
             for method in v.methods:
                 length = get_method_length(method)
+                # print(method.name, length)
                 if (length>lim):
+                    found = True
                     print("%s: Method '%s' lines (%d > %d) - %s" % (k,method.name, length, lim, LONG_METHOD))
+
+        if not found:
+            print("No long methods found")
 
     def long_parameter_test(self, lim):
         print("Long Parameter Test (lp=" + str(lim) + ")")
-        
+        found = False
         for k in self.trees:
             tree = self.trees[k]
             v= MethodVisitor()
             tree.accept(v)
             for method in v.methods:
                 length = get_parameter_length(method)
+                # print(method.name, length)
                 if (length>lim):
+                    found = True
                     print("%s: Method '%s' parameters (%d > %d) - %s" % (k,method.name, length, lim, LONG_PARAMETER))
+
+        if not found:
+            print("No long method parameters found")
 
 
   
     def lazy_class(self, lim):
         print("Lazy Class Test (lc=" + str(lim) + ")")
-
+        found = False
         for k in self.trees:
             tree = self.trees[k]
             v= ClassVisitor()
@@ -162,14 +182,17 @@ class CodeSniffer:
             for i, c in enumerate(cs):
                 length = get_class_length(c)
                 if length<=lim:
+                    found = True
                     print("%s: Class '%s' lazy (%d <= %d) - %s" % (k,c.name,length,lim, LAZY_CLASS))
+        if not found:
+            print("No lazy classes found")
 
 
 
     #TODO: currently fails
     def duplicate_code(self, lim):
         print("Duplicate Code Test (lp=" + str(lim) + ")")
-
+        found = False
         for k in self.trees:
             tree = self.trees[k]
             v= MethodVisitor()
@@ -180,7 +203,11 @@ class CodeSniffer:
                 for j in range(i,len_ms):
                     length = method_similarity(ms[i],ms[j])
                     if length>lim:
+                        found = True
                         print("%s: Similar Code: %s, %s - %s" % (k, ms[i].name, ms[j].name, DUPLICATE_CODE))
+
+        if not found:
+            print("No duplicade code case found")
 
   
     def god_class(self):

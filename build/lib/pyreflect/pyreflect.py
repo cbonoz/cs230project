@@ -41,8 +41,6 @@ def main():
     parser.add_argument('-p', action='store_true', dest='program_tree', default=False,
                         help='Build Program Tree for the folder')
 
-
-
     parser.add_argument('-a', action='store_true', default=False,
                         dest='run_all',
                         help='Run all smell tests with defaults')
@@ -75,7 +73,7 @@ def main():
 
 
     #only load the parse tree once
-    code_sniffer = codesniffer.CodeSniffer(target_folder)
+    code_sniffer = codesniffer.CodeSniffer(target_folder,args.timing)
 
     if args.timing:
         time2 = time.time()

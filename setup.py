@@ -38,13 +38,14 @@ def create_alias():
         cmds = []
         # cmds.append("echo alias pyreflect=\\'\"python " + pyr_path + "\'\" >> " + bash_file)
         cmds.append("echo alias pyreflect=\\'python -m pyreflect.pyreflect\\' >> " + bash_file)
-        cmds.append("source " + "~/.bash_profile")
-        cmds.append("source " + bash_file)
-        cmds.append("source " + "~/.bash_profile")
+        cmds.append("source ~/.bash_profile")
+        # cmds.append("source " + bash_file)
+        # cmds.append("source ~/.bash_profile")
         cmds.append("chmod +x " + pyr_path)
         for b in cmds:
             print(b)
             os.system(b)
+        os.system("source ~/.bash_profile")
         print("done")
     except Exception as e:
         print(e)
