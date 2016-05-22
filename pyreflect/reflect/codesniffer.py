@@ -148,7 +148,7 @@ class CodeSniffer:
         print("Long Method Test (lm=" + str(lim) + ")")
         # print("Excluding comments and whitespace from method line count")
         # print("* Currently If/Else, Inline Declarations treated as one element *")
-        found = False
+        found = 0
         for k in self.trees:
             tree = self.trees[k]
             if tree is None:
@@ -159,18 +159,18 @@ class CodeSniffer:
                 length = sm.get_method_length(method)
                 # print(method.name, length)
                 if (length>lim):
-                    found = True
+                    found+=1
                     print("%s: Method '%s' lines (%d > %d)" % (k,method.name, length, lim))
 
         if found:
-            print(LONG_METHOD)
+            print(str(found) + " violations - " + LONG_METHOD)
         else:
             print("No long methods found")
 
 
     def long_parameter_test(self, lim):
         print("Long Parameter Test (lp=" + str(lim) + ")")
-        found = False
+        found = 0
         for k in self.trees:
             tree = self.trees[k]
             if tree is None:
@@ -182,12 +182,12 @@ class CodeSniffer:
                 length = sm.get_parameter_length(method)
                 # print(method.name, length)
                 if (length>lim):
-                    found = True
+                    found+=1
                     print("%s: Method '%s' parameters (%d > %d)" % (k,method.name, length, lim))
 
 
         if found:
-            print(LONG_PARAMETER)
+            print(str(found) + " violations - " + LONG_PARAMETER)
         else:
             print("No long method parameters found")
 
@@ -195,7 +195,7 @@ class CodeSniffer:
   
     def lazy_class(self, lim):
         print("Lazy Class Test (lc=" + str(lim) + ")")
-        found = False
+        found = 0
         for k in self.trees:
             tree = self.trees[k]
             v= ClassVisitor()
@@ -205,18 +205,18 @@ class CodeSniffer:
             for i, c in enumerate(cs):
                 length = sm.get_class_length(c)
                 if length<lim:
-                    found = True
+                    found+=1
                     print("%s: Class '%s' lazy (%d < %d)" % (k,c.name,length,lim))
 
         if found:
-            print(LAZY_CLASS)
+            print(str(found) + " violations - " + LAZY_CLASS)
         else:
             print("No lazy classes found")
 
     #TODO: currently fails
     def duplicate_code(self, lim):
         print("Duplicate Code Test (lp=" + str(lim) + ")")
-        found = False
+        found = 0
         for k in self.trees:
             tree = self.trees[k]
             if tree is None:
@@ -229,11 +229,11 @@ class CodeSniffer:
                 for j in range(i+1,len_ms):
                     length = sm.method_similarity(ms[i],ms[j])
                     if length>lim:
-                        found = True
+                        found+=1
                         print("%s: Similar Code in %s/%s (%d > %d)" % (k,  ms[i].name, ms[j].name, length, lim))
 
         if found:
-            print(DUPLICATE_CODE)
+            print(str(found) + " violations - " + DUPLICATE_CODE)
         else:
             print("No duplicate code cases found")
 
@@ -241,7 +241,7 @@ class CodeSniffer:
     def god_class(self):
 
         print("God Class Test")
-        found = False
+        found = 0
         for k in self.trees:
             tree = self.trees[k]
             if tree is None:
@@ -252,7 +252,7 @@ class CodeSniffer:
             len_cs = len(cs)
             for i, c in enumerate(cs):
                 if (sm.check_god_class(c,k)):
-                    found = True
+                    found+=1
 
         if found:
             print(GOD_CLASS)
