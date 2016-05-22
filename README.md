@@ -10,30 +10,21 @@ A reflection module for Java written in Python
 **Command Line Interface**
 ---
 
-#### Method has too many Commands:
-ex: ./pyreflect.py -f ../tests/old/proj1 -lm 5
-
-##### options:=
-* -f (path to test folder),
-* -lm N (long method test with max N commands)
-
-#### Method has too many Parameters:
-ex: ./pyreflect.py -f ../tests/old/proj1 -lp 2
-
-##### options:=
-* -f (path to test folder),
-* -lp N (long parameter test with max N parameters)
-
-#### Other Options:
-* -g: Look for God Classes
-* -lc: Lazy Class - expects minimum statement amount parameter
-* -d: Duplicate Code - expects minimum line similarity amount parameter
-* -a: Run all 5 tests (long method, long parameter, lazy class, duplicate code, god class) on project with default parameters.
-* -t: Print time for parse and test(s) execution 
-
 #### For Command Line help
 
-./pyreflect -h
+pyreflect -h
+<!-- ./pyreflect -h -->
+
+#### Examples
+
+##### Detect methods in java files (within ../tests/old/proj1) that have more than 5 statements
+ex: pyreflect ../tests/old/proj1 -lm 5
+
+##### Detect methods in java files (within ../tests/old/proj1) that have more than 2 parameters
+ex: pyreflect ../tests/old/proj1 -lp 2
+
+##### Run a test with verbose performance time measure (add -t option)
+ex: pyreflect ../tests/old/proj1 -lp 2 -t
 
 <!-- # Website -->
 Render Visualizations
@@ -64,8 +55,8 @@ Requirements
 
 ##### For Command Line Pyreflect tool
 <!-- http://modeling-languages.com/uml-tools/#python -->
-* python 2.7 or newer
-* scipy, numpy, matplotlib
+* python 2.7
+<!-- * scipy, numpy, matplotlib -->
 * plyj: https://github.com/musiKk/plyj
 
 ##### For Visualization website
@@ -75,9 +66,14 @@ Requirements
 <!-- gulp -->
 
 
-To Install
----
+To Install (installing won't modify your path)
+----------
 
 1. Git clone this repository
-2. Run the following sudo python setup.py install --record files.txt
-3. 
+2. **sudo python setup.py install --record files.txt** from project home directory
+3. **pyreflect -h** from command line. 
+
+
+If install successful, but pyreflect not found. Run these commands
+1. echo alias pyreflect=\\'python -m pyreflect.pyreflect\\' >> ~/.bash_profile. 
+2. source ~/.bash_profile

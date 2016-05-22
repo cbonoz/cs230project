@@ -2,7 +2,7 @@
 # import plyj.model as m
 import os, json, sys
 import sys, argparse, time
-
+import random
 # import numpy as np
 # import scipy as sp
 # import matplotlib as mp
@@ -37,49 +37,103 @@ ONE_THIRD_THRESHOLD = 1/3.0
 END GOD CLASS THRESHOLD VALUES
 """
 
+#@param node: node is a method AST node
+
+def is_foreign_access(node):
+    """
+    @param node: node is a method AST node
+    @return: boolean representing if node is a setter or getter to a foreign element
+    """
+    return random.choice([True, False])
+
+#@param node: node is a method AST node
+def is_foreign_call(node):
+    """
+    @param node: node is a method AST node
+    @return: boolean representing if node is a foreign method call
+    """
+    return random.choice([True, False])
+
+#@param m: m is a method AST
+def wmc_count(m):
+    count = 1
+    return count
+
+def count_method_pairs(methods):
+    for m in methods:
+        print("%s: %s" % (m.name, str(m)))
+    return 0
+
+def print_to_log(txt):
+    with open("./log.txt","a+") as f:
+        f.write(txt+"\n")
 
 def check_god_class(c,k):
+    """
+    @param c: class AST object
+    @param k: file name
+    @return: boolean representing if c is a god class
+    """
+    #wmc: weighted method count
+    wmc = 0 
+    #atfd: count of foreign method accesses
+    atfd = 0 
+    #tcc: measure of method coupling - The relative number of method pairs of a class that access in common at least one attribute of the measured class [BK95]
+    tcc = 0 
 
-    wmc = 0 #weighted method count
-    atfd = 0 #count of foreign method accesses
-    tcc = 0 #measure of method coupling
+    method_pairs = 0#used for tcc calculation
 
-
-    #extract the class method declarations
+    #extract the class method and attribute declarations
     class_body = c.body
-    methods = [x for x in class_body if x.__class__.__name__ == "MethodDeclaration"]
+    methods = []
+    attrs = []
+
+    for x in class_body:
+        cn = x.__class__.__name__
+        if cn == "MethodDeclaration":
+            methods.append(x)
+        elif cn == "VariableDeclaration":
+            try:
+                attrs.extend([v.variable.name for v in x.variable_declarators])
+            except:
+                continue
+
+    # print_to_log(str(methods))
+    num_methods = len(methods)
+    total_method_pairs = num_methods * (num_methods - 1) / 2.0;
     method_names = [x.name for x in methods]
-    method_pairs = 0
+    # method_pairs = count_method_pairs(methods)
 
     #calculate wmc and atfd by visiting each method node
+    for i in range(num_methods):
+        method_i = methods[i]
+        method_body = method_i.body
+        if method_body:
+            for b in method_body:
+                    if is_foreign_call(b) or is_foreign_access(b):
+                        atfd += 1
+                    if b.__class__.__name__ in WMC_OBJECTS:
+                        wmc += wmc_count(b)
 
-    for m in methods:
-        method_body = m.body
-        for b in method_body:
-            if is_foreign_call(b) or is_foreign_access(b):
-                atfd += 1
-            if b.__class__.__name__ in WMC_OBJECTS:
-                wmc += wmc_count(b)
-            if hasattr(b,"name"):
-                if b.name in method.names:
-                    method_pairs += 1
+        for j in range(i+1, num_methods):
+            method_j = methods[j]
+            method_pairs += random.choice([0,1])
+            
 
-
-
-    #calculate tcc
-    total_method_pairs = len(methods) * (len(methods) - 1) / 2;
+    #calculate tcc 
     if total_method_pairs>0:
-        tcc = method_pairs / total_method_pairs
+        tcc = 1#method_pairs / total_method_pairs
     else:
         tcc = 0
 
 
 
     if (wmc >= WMC_VERY_HIGH and atfd > FEW_THRESHOLD and tcc > ONE_THIRD_THRESHOLD):
-        print("%s: %s God Class (WMC=%d, ATFD=%d, TCC=%d) - %s" % (k, c.name, wmc, atfd, tcc, GOD_CLASS))
+        print("%s: %s God Class (WMC=%d, ATFD=%d, TCC=%d/%d)" % (k, c.name, wmc, atfd, method_pairs, total_method_pairs))
         return True
     else:
-        print("%s: %s Not God Class (WMC=%d, ATFD=%d, TCC=%d)" % (k, c.name,wmc, atfd, tcc))
+        #print here used for debug of non god classes
+        # print("%s: %s Not God Class (WMC=%d, ATFD=%d, TCC=%d)" % (k, c.name,wmc, atfd, tcc))
         return False
 
 """
@@ -88,7 +142,8 @@ Helper functions for code smell detection
 
 """
 
-
+#@param methods: methods is a list of method AST objects
+#returns similarity of methods
 def method_similarity(method1, method2):
     #returns if two methods are sufficiently similar to be refactored
 
@@ -148,34 +203,8 @@ def get_method_length(method):
     return c
 
 
-#@param node: node is a method AST node
-def is_foreign_access(node):
-
-    return True
-
-#@param node: node is a method AST node
-def is_foreign_call(node):
-    return True
-
-#@param m: m is a method AST
-def wmc_count(m):
-    count = 0
-    return count
-
-
-#@param methods: methods is a list of method AST objects
-#returns similarity of methods
-def count_method_pairs(methods):
-    for m in methods:
-        print("%s: %s" % (m.name, str(m)))
-    return 0
-
-
-
 def get_node_name(i_name, c_name):
     return i_name + " (" + c_name + ")" 
-
-
 
 def get_children(node):   
     #recursively iterates through node children in order to construct json object
@@ -212,8 +241,6 @@ def get_children(node):
             temp_obj['name'] = get_node_name(node.name,_name)
         else:
             temp_obj['name'] = _name
-
-
 
         # if _name == "Return":
         #     if hasattr(node, "result"):

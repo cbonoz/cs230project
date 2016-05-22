@@ -1,6 +1,12 @@
 # Code smells
 
-- Duplicated Code
+(new) - Duplicated Code, measured between methods
+  - Duplicate code (3 statements) marked between getName and getMyName in Customer.java
+  - the order of the statements is able to be ignored when finding method similarity
+  - the statement lines must otherwise be the same
+  - Possible refactoring: Extract Methods or Refactor
+
+(old) - Duplicated Code, within method
   - For determining the fullName of the Customer
   - In the customer.withdraw method we can see similar code
   - Possible refactoring: Extract method

@@ -204,9 +204,9 @@ class CodeSniffer:
             len_cs = len(cs)
             for i, c in enumerate(cs):
                 length = sm.get_class_length(c)
-                if length<=lim:
+                if length<lim:
                     found = True
-                    print("%s: Class '%s' lazy (%d <= %d)" % (k,c.name,length,lim))
+                    print("%s: Class '%s' lazy (%d < %d)" % (k,c.name,length,lim))
 
         if found:
             print(LAZY_CLASS)

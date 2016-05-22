@@ -19,7 +19,17 @@ public abstract class Customer {
 
     protected abstract String getFullName();
 
+
     public String getName() {
+
+        String txt = "there is 3 statement overlap";
+        String txt2 = "for duplicated code test";
+        return name;
+    }
+
+    public String getMyName() {
+        String txt2 = "for duplicated code test";
+        String txt = "there is 3 statement overlap";
         return name;
     }
 

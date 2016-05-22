@@ -32,7 +32,7 @@ def main():
 
    
     parser.add_argument('-lc', action='store', dest='lazy_class_limit', default=-1,
-                        help='Detect Lazy Classes with number of methods/parameters')
+                        help='Detect Lazy Classes with below limit number of methods/parameters')
 
     parser.add_argument('-d', action='store', dest='dup_limit', default=-1,
                         help='Detect duplicate method code with number of similar statements')
