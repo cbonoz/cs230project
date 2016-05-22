@@ -17,14 +17,14 @@ pyreflect -h
 
 #### Examples
 
-##### Detect methods in java files (within ../tests/old/proj1) that have more than 5 statements
-ex: pyreflect ../tests/old/proj1 -lm 5
+##### Detect methods in java files (within tests/code-smell-medium/ folder) that have more than 3 statements
+ex: pyreflect tests/code-smell-medium/ -lm 3
 
-##### Detect methods in java files (within ../tests/old/proj1) that have more than 2 parameters
-ex: pyreflect ../tests/old/proj1 -lp 2
+##### Detect methods in java files that have more than 2 parameters
+ex: pyreflect tests/code-smell-medium/ -lp 2
 
 ##### Run a test with verbose performance time measure (add -t option)
-ex: pyreflect ../tests/old/proj1 -lp 2 -t
+ex: pyreflect tests/code-smell-medium/ -lp 2 -t
 
 <!-- # Website -->
 Render Visualizations
