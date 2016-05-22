@@ -32,7 +32,7 @@ def main():
     parser.add_argument('-lc', action='store', dest='lazy_class_limit', default=-1,
                         help='Detect Lazy Classes with number of methods/parameters')
 
-    parser.add_argument('-d', action='store', dest='duplicate_code', default=-1,
+    parser.add_argument('-d', action='store', dest='dup_limit', default=-1,
                         help='Detect duplicate method code with number of similar lines')
 
     parser.add_argument('-g', action='store_true', dest='god_class', default=False,
@@ -49,6 +49,10 @@ def main():
                         dest='timing',
                         help='Run pyreflect with performance timing')
 
+    parser.add_argument('-c', action='store_true', default=False,
+                        dest='cache_result',
+                        help='Run pyreflect with tree save {file}_tree.txt')
+
     parser.add_argument('--version', action='version', version='%(prog)s 1.0')
 
     args = parser.parse_args()
@@ -57,27 +61,25 @@ def main():
     lm_limit = int(args.long_method_limit)
     lp_limit = int(args.long_parameter_limit)
     lc_limit = int(args.lazy_class_limit)
-    dup_limit = int(args.duplicate_code)
+    dup_limit = int(args.dup_limit)
     god_class = bool(args.god_class)
     prog_tree = bool(args.program_tree)
+    cache_result = bool(args.cache_result)
 
     run_all = bool(args.run_all)
 
     if not target_folder:
         print("Usage: Need -f target folder option")
         return
-
     
     if args.timing:
         time1 = time.time()
 
-
     #only load the parse tree once
-    code_sniffer = codesniffer.CodeSniffer(target_folder,args.timing)
+    code_sniffer = codesniffer.CodeSniffer(target_folder,args.timing, cache_result)
 
     if args.timing:
         time2 = time.time()
-        
 
     if run_all:
         #run all tests with default values
@@ -98,7 +100,7 @@ def main():
             code_sniffer.lazy_class(lc_limit)
 
         if dup_limit>0:
-            code_sniffer.duplicate_code(dup_code)
+            code_sniffer.duplicate_code(dup_limit)
 
         if god_class:
             code_sniffer.god_class()
@@ -109,7 +111,7 @@ def main():
     # print("---\ndone")
     if args.timing:
         time3 = time.time()
-        print('Java Parsing took %0.2fs' %  ((time2-time1)*1.0))
+        print('Setting up the Parser and then Parsing took %0.2fs total' %  ((time2-time1)*1.0))
         print('Pyreflect Analysis took %0.2fs' %  ((time3-time2)*1.0))
 
 if __name__ == "__main__":

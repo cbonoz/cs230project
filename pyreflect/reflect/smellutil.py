@@ -1,5 +1,5 @@
-import plyj.parser
-import plyj.model as m
+# import plyj.parser
+# import plyj.model as m
 import os, json, sys
 import sys, argparse, time
 
@@ -13,7 +13,6 @@ from collections import Counter
 """
 nodeutil.py
 Collection of Helper functions used for detecting code smells
-
 
 """
 
@@ -78,8 +77,10 @@ def check_god_class(c,k):
 
     if (wmc >= WMC_VERY_HIGH and atfd > FEW_THRESHOLD and tcc > ONE_THIRD_THRESHOLD):
         print("%s: %s God Class (WMC=%d, ATFD=%d, TCC=%d) - %s" % (k, c.name, wmc, atfd, tcc, GOD_CLASS))
+        return True
     else:
         print("%s: %s Not God Class (WMC=%d, ATFD=%d, TCC=%d)" % (k, c.name,wmc, atfd, tcc))
+        return False
 
 """
 
@@ -90,14 +91,18 @@ Helper functions for code smell detection
 
 def method_similarity(method1, method2):
     #returns if two methods are sufficiently similar to be refactored
-    body1 = method1["body"]
-    body2 = method2["body"]
-    if abs(len(body1) - len(body2)) > 3:
-        return 0 #not similar
+
+    body1 = method1.body
+    body2 = method2.body
+    if body1 is None or body2 is None:
+        return 0
+
+    # if abs(len(body1) - len(body2)) > 3:
+    #     return 0 #not similar
     body1 = set([str(x) for x in body1])
     body2 = set([str(x) for x in body2])
     similarity_score = len(body1.intersection(body2))
-    print("Similarity %s/%s: %d" % (method1.name, method2.name, similarity_score))
+    # print("Similarity %s/%s: %d" % (method1.name, method2.name, similarity_score))
     return similarity_score
 
 
@@ -225,3 +230,8 @@ def get_children(node):
 
 
     return temp_obj
+
+def get_file_name(f):
+    return os.path.basename(f)
+
+
