@@ -17,23 +17,25 @@ def main():
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-f', action='store', default=None,
-                        dest='target_folder',
-                        help='Target project folder',
-                        required=True)
+    parser.add_argument('target_folder', nargs=1)
+
+    # parser.add_argument('-f', action='store', default=None,
+    #                     dest='target_folder',
+    #                     help='Target project folder',
+    #                     required=True)
 
     parser.add_argument('-lm', action='store', dest='long_method_limit', default=-1,
-                        help='Run long method test with limit value')
+                        help='Run long method test with statement limit value')
 
     parser.add_argument('-lp', action='store', dest='long_parameter_limit', default=-1,
-                        help='Run long parameter test with limit value')
+                        help='Run long parameter test with parameter limit value')
 
    
     parser.add_argument('-lc', action='store', dest='lazy_class_limit', default=-1,
                         help='Detect Lazy Classes with number of methods/parameters')
 
     parser.add_argument('-d', action='store', dest='dup_limit', default=-1,
-                        help='Detect duplicate method code with number of similar lines')
+                        help='Detect duplicate method code with number of similar statements')
 
     parser.add_argument('-g', action='store_true', dest='god_class', default=False,
                         help='Detect God Classes if present')
@@ -49,14 +51,15 @@ def main():
                         dest='timing',
                         help='Run pyreflect with performance timing')
 
-    parser.add_argument('-c', action='store_true', default=False,
-                        dest='cache_result',
-                        help='Run pyreflect with tree save {file}_tree.txt')
+    # parser.add_argument('-c', action='store_true', default=False,
+    #                     dest='cache_result',
+    #                     help='Run pyreflect with tree save {file}_tree.txt')
 
     parser.add_argument('--version', action='version', version='%(prog)s 1.0')
 
     args = parser.parse_args()
-    target_folder = args.target_folder
+    target_folder = args.target_folder[0]
+    # print(target_folder)
 
     lm_limit = int(args.long_method_limit)
     lp_limit = int(args.long_parameter_limit)
@@ -64,19 +67,19 @@ def main():
     dup_limit = int(args.dup_limit)
     god_class = bool(args.god_class)
     prog_tree = bool(args.program_tree)
-    cache_result = bool(args.cache_result)
+    # cache_result = bool(args.cache_result)
 
     run_all = bool(args.run_all)
 
     if not target_folder:
-        print("Usage: Need -f target folder option")
+        print("Usage: Need -f target folder")
         return
     
     if args.timing:
         time1 = time.time()
 
     #only load the parse tree once
-    code_sniffer = codesniffer.CodeSniffer(target_folder,args.timing, cache_result)
+    code_sniffer = codesniffer.CodeSniffer(target_folder,args.timing)#, cache_result)
 
     if args.timing:
         time2 = time.time()
