@@ -37,29 +37,40 @@ ONE_THIRD_THRESHOLD = 1/3.0
 END GOD CLASS THRESHOLD VALUES
 """
 
-#@param node: node is a method AST node
-
 def is_foreign_access(node):
     """
     @param node: node is a method AST node
     @return: boolean representing if node is a setter or getter to a foreign element
     """
-    return random.choice([True, False])
+    return 
 
-#@param node: node is a method AST node
 def is_foreign_call(node):
     """
     @param node: node is a method AST node
     @return: boolean representing if node is a foreign method call
     """
-    return random.choice([True, False])
+    return any(["get","is","set"] in node.name) and node.__class__.__name__ == "MethodInvocation"
+    # return random.choice([True, False])
 
-#@param m: m is a method AST
-def wmc_count(m):
-    count = 1
-    return count
+
+def wmc_count(node):
+    """
+    @param node: node is a method AST node
+    @return: weighted method count for the node
+    """
+    if node.__class__.__name__ in WMC_OBJECTS:
+        if hasattr(node,"body"):
+            return 1 + wmc_count(node)
+        else:
+            return 1
+    else:
+        return 0
 
 def count_method_pairs(methods):
+    """
+    @param methods: number of methods in the class
+    @return: number of possible method pairs
+    """
     for m in methods:
         print("%s: %s" % (m.name, str(m)))
     return 0
@@ -74,20 +85,23 @@ def check_god_class(c,k):
     @param k: file name
     @return: boolean representing if c is a god class
     """
+
+
     #wmc: weighted method count
     wmc = 0 
     #atfd: count of foreign method accesses
     atfd = 0 
-    #tcc: measure of method coupling - The relative number of method pairs of a class that access in common at least one attribute of the measured class [BK95]
+    #tcc: measure of method coupling - 
+    #The relative number of method pairs of a class that access in common at least one attribute of the measured class [BK95]
     tcc = 0 
-
-    method_pairs = 0#used for tcc calculation
+    method_pairs = 0
 
     #extract the class method and attribute declarations
     class_body = c.body
     methods = []
     attrs = []
 
+    #derive the method count for the class
     for x in class_body:
         cn = x.__class__.__name__
         if cn == "MethodDeclaration":
@@ -98,10 +112,10 @@ def check_god_class(c,k):
             except:
                 continue
 
-    # print_to_log(str(methods))
     num_methods = len(methods)
     total_method_pairs = num_methods * (num_methods - 1) / 2.0;
     method_names = [x.name for x in methods]
+    
     # method_pairs = count_method_pairs(methods)
 
     #calculate wmc and atfd by visiting each method node
@@ -110,26 +124,23 @@ def check_god_class(c,k):
         method_body = method_i.body
         if method_body:
             for b in method_body:
+                    if 
                     if is_foreign_call(b) or is_foreign_access(b):
                         atfd += 1
-                    if b.__class__.__name__ in WMC_OBJECTS:
-                        wmc += wmc_count(b)
+                    wmc += wmc_count(b)
 
         for j in range(i+1, num_methods):
             method_j = methods[j]
             method_pairs += random.choice([0,1])
-            
 
     #calculate tcc 
     if total_method_pairs>0:
-        tcc = 1#method_pairs / total_method_pairs
+        tcc = method_pairs / total_method_pairs
     else:
         tcc = 0
 
-
-
     if (wmc >= WMC_VERY_HIGH and atfd > FEW_THRESHOLD and tcc > ONE_THIRD_THRESHOLD):
-        print("%s: %s God Class (WMC=%d, ATFD=%d, TCC=%d/%d)" % (k, c.name, wmc, atfd, method_pairs, total_method_pairs))
+        print("%s: %s Possible God Class (WMC=%d, ATFD=%d, TCC=%d/%d=%d)" % (k, c.name, wmc, atfd, method_pairs, total_method_pairs,tcc))
         return True
     else:
         #print here used for debug of non god classes
@@ -137,46 +148,40 @@ def check_god_class(c,k):
         return False
 
 """
-
 Helper functions for code smell detection
-
 """
 
-#@param methods: methods is a list of method AST objects
-#returns similarity of methods
 def method_similarity(method1, method2):
+    """
+    #@param methods: methods is a list of method AST objects
     #returns if two methods are sufficiently similar to be refactored
-
+    """
     body1 = method1.body
     body2 = method2.body
     if body1 is None or body2 is None:
         return 0
 
-    # if abs(len(body1) - len(body2)) > 3:
-    #     return 0 #not similar
     body1 = set([str(x) for x in body1])
     body2 = set([str(x) for x in body2])
     similarity_score = len(body1.intersection(body2))
-    # print("Similarity %s/%s: %d" % (method1.name, method2.name, similarity_score))
-    return similarity_score
 
+    return similarity_score
 
 def get_parameter_length(method):
     #number of parameters in the method call
     return len(method.parameters) 
 
-
 def get_class_length(c):
     #number of declarations in the class body
     return len(c.body)
 
-
 def get_method_length(method):
+    #length of method (including nested nodes)
     body_elements = method.body
     if body_elements is None:
         return 0
+
     c = 0
-    # return len(body_elements) #false
 
     for node in body_elements:
         _name = node.__class__.__name__
@@ -195,8 +200,6 @@ def get_method_length(method):
             if node.switch_cases is not None:
                 for case in node.switch_cases:
                     c+=len(case.body)
-
-
         else: #other basic body element type (that doesn't have inner body)
             c+=1
 

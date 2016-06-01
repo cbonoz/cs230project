@@ -6,7 +6,7 @@ import plyj.model as m
 import os, json, sys
 import sys, argparse, time
 # from clint.textui import colored, puts
-# 
+#
 OUTFILE_BASE = "../website/app/trees/project_"
 
 """
@@ -32,7 +32,6 @@ def blockPrint():
 def enablePrint():
     sys.stdout = sys.__stdout__
     sys.stderr = sys.__stderr__
-
 
 # def arg_check(f):
 #     def wrapper(*args, **kw):
@@ -66,7 +65,7 @@ class ClassVisitor(m.Visitor):
 
     def visit_ClassDeclaration(self,class_decl):
         self.classes.append(class_decl)
-        return True  
+        return True
 
 class CodeSniffer:
     def __init__(self, folder, timed=False, cache_result=False):
@@ -99,7 +98,7 @@ class CodeSniffer:
                 self.time2 = time.time()
                 print('Parsing %s took %0.2fs' %  (java_file, (self.time2-self.time1)*1.0))
 
-            
+
 
         # enablePrint()
         # print("Java files: " + str(self.trees.keys()))
@@ -112,7 +111,7 @@ class CodeSniffer:
         c_dict = {}
         c_dict["name"] = "Test Project " + str(test_num)
         c_dict["children"] = []
-        
+
         # print("Test: " + str(self.folder))
         print(self.files)
         #iterate through all the files in the testfolder
@@ -177,7 +176,6 @@ class CodeSniffer:
                 continue
             v = MethodVisitor()
             tree.accept(v)
-
             for method in v.methods:
                 length = sm.get_parameter_length(method)
                 # print(method.name, length)
@@ -185,19 +183,18 @@ class CodeSniffer:
                     found+=1
                     print("%s: Method '%s' parameters (%d > %d)" % (k,method.name, length, lim))
 
-
         if found:
             print(str(found) + " violations - " + LONG_PARAMETER)
         else:
             print("No long method parameters found")
 
-
-  
     def lazy_class(self, lim):
         print("Lazy Class Test (lc=" + str(lim) + ")")
         found = 0
         for k in self.trees:
             tree = self.trees[k]
+            if tree is None:
+                continue
             v= ClassVisitor()
             tree.accept(v)
             cs = v.classes
@@ -207,6 +204,7 @@ class CodeSniffer:
                 if length<lim:
                     found+=1
                     print("%s: Class '%s' lazy (%d < %d)" % (k,c.name,length,lim))
+
 
         if found:
             print(str(found) + " violations - " + LAZY_CLASS)
@@ -218,7 +216,7 @@ class CodeSniffer:
         print("Duplicate Code Test (lp=" + str(lim) + ")")
         found = 0
         for k in self.trees:
-            tree = self.trees[k]
+            tree = self.trees[k]2
             if tree is None:
                 continue
             v= MethodVisitor()
@@ -237,9 +235,7 @@ class CodeSniffer:
         else:
             print("No duplicate code cases found")
 
-  
     def god_class(self):
-
         print("God Class Test")
         found = 0
         for k in self.trees:
@@ -257,6 +253,4 @@ class CodeSniffer:
         if found:
             print(GOD_CLASS)
         else:
-            print("No God Classes found")        
-
- 
+            print("No God Classes found")

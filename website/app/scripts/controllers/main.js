@@ -7,9 +7,9 @@
  * # MainCtrl
  * Controller of the websiteApp
  */
+
 angular.module('websiteApp')
   .controller('MainCtrl', function ($scope, fileSystem, jsonGetter, _) {
-
 
     $scope.folder = "./trees/"
     // $scope.folder = "../../../../visualize/trees/"
@@ -48,7 +48,7 @@ angular.module('websiteApp')
 
     $scope.tab_content = '<tree-graph class="full-screen" data="tree_data" ng-hide="bad_data"></tree-graph><h4 ng-show="bad_data">No test file <i>{{tab}}.json</i> found</h4>'
 
-    
+
     let getFiles = function(dir) {
         $scope.files = []
         fileSystem.getFolderContents(dir).then(function(entries) {
@@ -72,7 +72,7 @@ angular.module('websiteApp')
         });
     };
 
-    
+
 
     this.awesomeThings = [
       'HTML5 Boilerplate',

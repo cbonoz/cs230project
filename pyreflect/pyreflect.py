@@ -30,7 +30,7 @@ def main():
     parser.add_argument('-lp', action='store', dest='long_parameter_limit', default=-1,
                         help='Run long parameter test with parameter limit value')
 
-   
+
     parser.add_argument('-lc', action='store', dest='lazy_class_limit', default=-1,
                         help='Detect Lazy Classes with below limit number of methods/parameters')
 
@@ -74,7 +74,7 @@ def main():
     if not target_folder:
         print("Usage: Need -f target folder")
         return
-    
+
     if args.timing:
         time1 = time.time()
 
@@ -110,7 +110,8 @@ def main():
 
         if prog_tree:
             code_sniffer.output_program_tree(1)
- 
+
+
     # print("---\ndone")
     if args.timing:
         time3 = time.time()
@@ -119,5 +120,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
