@@ -24,6 +24,7 @@ GOD CLASS THRESHOLD VALUES
  # * See: Lanza. Object-Oriented Metrics in Practice. Page 16.
 WMC_VERY_HIGH = 47
 WMC_OBJECTS = ["MethodDeclaration", "ConditionalOr", "ConditionalAnd", "IfThenElse", "While", "DoWhile", "SwitchCase", "For", "Try", "Catch", "Conditional"]
+STANDARD_TYPES = ["float","int", "integer", "char", "character", "double", "string","byte", "array", "bool", "boolean"]
 
  # * Few means between 2 and 5.
  # * See: Lanza. Object-Oriented Metrics in Practice. Page 18.
@@ -42,14 +43,18 @@ def is_foreign_access(node):
     @param node: node is a method AST node
     @return: boolean representing if node is a setter or getter to a foreign element
     """
-    return 
+    try:
+        return node.__class__.__name__ == "FieldDeclaration" and str(node.type.name).lower() not in STANDARD_TYPES
+    except Exception as e:
+        print(str(e))
+        return False
 
 def is_foreign_call(node):
     """
     @param node: node is a method AST node
     @return: boolean representing if node is a foreign method call
     """
-    return any(["get","is","set"] in node.name) and node.__class__.__name__ == "MethodInvocation"
+    return node.__class__.__name__ == "MethodInvocation" and any(["get","is","set"] in str(node.name).lower())
     # return random.choice([True, False])
 
 
@@ -79,14 +84,36 @@ def print_to_log(txt):
     with open("./log.txt","a+") as f:
         f.write(txt+"\n")
 
+def shared_attr_access(method1,method2):
+    """
+    @param m1,m2: method AST nodes
+    @return: bool representing if m1 and m2 share an attribute access
+    """
+    m1_body = method1.body
+    m2_body = method2.body
+    if len(m1_body) == 0 or len(m2_body) == 0:
+        return False
+
+    for m1 in m1_body:
+        if m1.__class__.__name__ == "Assignment":
+            lhs1 = m1.lhs.name
+            rhs1 = m1.rhs.name
+            for m2 in m2_body:
+                if m1.__class__.__name__ == "Assignment":
+                    lhs2 = m2.lhs.name
+                    rhs2 = m2.rhs.name
+                    if lhs1 == lhs2 or lhs1 == rhs2 or rhs1 == lhs2 or rhs1 == rhs2
+                        return True
+
+    return False
+    # return random.choice([True, False])
+
 def check_god_class(c,k):
     """
     @param c: class AST object
-    @param k: file name
+    @param k: file name key
     @return: boolean representing if c is a god class
     """
-
-
     #wmc: weighted method count
     wmc = 0 
     #atfd: count of foreign method accesses
@@ -94,12 +121,16 @@ def check_god_class(c,k):
     #tcc: measure of method coupling - 
     #The relative number of method pairs of a class that access in common at least one attribute of the measured class [BK95]
     tcc = 0 
+
     method_pairs = 0
 
     #extract the class method and attribute declarations
     class_body = c.body
     methods = []
     attrs = []
+
+    class_name = c.name
+
 
     #derive the method count for the class
     for x in class_body:
@@ -130,7 +161,8 @@ def check_god_class(c,k):
 
         for j in range(i+1, num_methods):
             method_j = methods[j]
-            method_pairs += random.choice([0,1])
+            if shared_attr_access(method_i, method_j):
+                method_pairs += 1
 
     #calculate tcc 
     if total_method_pairs>0:

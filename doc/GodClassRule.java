@@ -254,8 +254,6 @@ public class GodClassRule extends AbstractJavaRule {
         return node.findDescendantsOfType(ASTPrimarySuffix.class).isEmpty();
     }
 
-
-
     @Override
     public Object visit(ASTMethodDeclaration node, Object data) {
         wmcCounter++;
