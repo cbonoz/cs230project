@@ -124,7 +124,6 @@ def check_god_class(c,k):
         method_body = method_i.body
         if method_body:
             for b in method_body:
-                    if 
                     if is_foreign_call(b) or is_foreign_access(b):
                         atfd += 1
                     wmc += wmc_count(b)

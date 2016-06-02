@@ -216,7 +216,7 @@ class CodeSniffer:
         print("Duplicate Code Test (lp=" + str(lim) + ")")
         found = 0
         for k in self.trees:
-            tree = self.trees[k]2
+            tree = self.trees[k]
             if tree is None:
                 continue
             v= MethodVisitor()
