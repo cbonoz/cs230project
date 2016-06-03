@@ -51,7 +51,7 @@ angular.module('websiteApp')
         let fname = "tree" + n + ".json"
         tabs.push({ title: fname, content: $scope.jsonText, disabled: false});
         $scope.badData = false;
-        $scope.treeData = data;
+        $scope.treeData = $scope.jsonText;
 
         $scope.showSimpleToast("JSON Successfully loaded");
     }
