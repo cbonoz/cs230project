@@ -260,33 +260,40 @@ def get_class_length(c):
 
 def get_method_length(method):
     #length of method (including nested nodes)
-    body_elements = method.body
-    if body_elements is None:
+    if method is None:
         return 0
 
-    c = 0
+    _name = method.__class__.__name__
+    try:
+        if hasattr(method, "body"):
+            if method.body:
+                return 1 + sum([get_method_length(x) for x in  method.body])
+            return 0
+        elif hasattr(method, "switchcases"):
+            if method.switchcases:
+                return 1 + sum([get_method_length(x) for x in  method.switchcases])
+            return 0
+        elif _name == "IfThenElse":
+            true_length = 0
+            if method.if_true:
+                true_length = 1
+                if hasattr(method.if_true, "statements"):
+                    true_length = 1 + sum([get_method_length(x) for x in method.if_true.statements])
 
-    for node in body_elements:
-        _name = node.__class__.__name__
-        if _name == "IfThenElse":
-            if hasattr(node, "if_true"):
-                if node.if_true.__class__.__name__ == "Block":
-                    c += len(node.if_true.statements)
-                else:
-                    c+=1
-            if hasattr(node, "if_false"):
-                if node.if_false.__class__.__name__ == "Block":
-                    c += len(node.if_false.statements)
-                else:
-                    c+=1
-        elif _name == "Switch":
-            if node.switch_cases is not None:
-                for case in node.switch_cases:
-                    c+=len(case.body)
-        else: #other basic body element type (that doesn't have inner body)
-            c+=1
+            false_length = 0
+            if method.if_false:
+                false_length = 1
+                if hasattr(method.if_false, "statements"):
+                    false_length = 1 + sum([get_method_length(x) for x in method.if_false.statements])
 
-    return c
+            return true_length + false_length
+    except Exception as e:
+        print(method)
+        print("ERROR: " + str(e))
+        print(traceback.format_exc())
+        sys.exit(1)
+
+    return 1
 
 
 def get_node_name(i_name, c_name):
