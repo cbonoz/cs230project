@@ -2,7 +2,7 @@
 # import plyj.model as m
 import os, json, sys
 import sys, argparse, time
-import random
+import random, traceback
 # import numpy as np
 # import scipy as sp
 # import matplotlib as mp
@@ -23,16 +23,17 @@ GOD CLASS THRESHOLD VALUES
 # * Very high threshold for WMC (Weighted Method Count).
  # * See: Lanza. Object-Oriented Metrics in Practice. Page 16.
 WMC_VERY_HIGH = 47
-WMC_OBJECTS = ["MethodDeclaration", "ConditionalOr", "ConditionalAnd", "IfThenElse", "While", "DoWhile", "SwitchCase", "For", "Try", "Catch", "Conditional"]
+WMC_OBJECTS = ["methoddeclaration", "conditionalor", "conditionaland", "ifthenelse", "While", "dowhile", "switchcase", "for", "try", "catch", "conditional","throws","foreach", "assignment","methodinvocation"]
 STANDARD_TYPES = ["float","int", "integer", "char", "character", "double", "string","byte", "array", "bool", "boolean"]
+ACCESSOR_LIST = ["get","is","set","check"]
 
  # * Few means between 2 and 5.
  # * See: Lanza. Object-Oriented Metrics in Practice. Page 18.
-FEW_THRESHOLD = 5
+FEW_THRESHOLD = 3
 
  # * One third is a low value.
  # * See: Lanza. Object-Oriented Metrics in Practice. Page 17.
-ONE_THIRD_THRESHOLD = 1/3.0
+ONE_THIRD_THRESHOLD = .1/3.0
 #self.trees contains all the java file parse trees indexed by filename
 """ 
 END GOD CLASS THRESHOLD VALUES
@@ -40,21 +41,32 @@ END GOD CLASS THRESHOLD VALUES
 
 def is_foreign_access(node):
     """
+    for atfd
     @param node: node is a method AST node
     @return: boolean representing if node is a setter or getter to a foreign element
     """
     try:
-        return node.__class__.__name__ == "FieldDeclaration" and str(node.type.name).lower() not in STANDARD_TYPES
+        if node.__class__.__name__ in ["FieldDeclaration", "Assignment"]:
+            # return str(node.type.name).lower() not in STANDARD_TYPES
+            return str(get_object_name(node)).lower() not in STANDARD_TYPES
     except Exception as e:
         print(str(e))
-        return False
+    return False
 
 def is_foreign_call(node):
     """
+    for atfd
     @param node: node is a method AST node
     @return: boolean representing if node is a foreign method call
     """
-    return node.__class__.__name__ == "MethodInvocation" and any(["get","is","set"] in str(node.name).lower())
+    try:
+        if node.__class__.__name__ == "MethodInvocation":
+            m_name = str(get_object_name(node)).lower()
+            return any(substring in m_name for substring in ACCESSOR_LIST)
+    except Exception as e:
+            print(str(e))
+    return False
+
     # return random.choice([True, False])
 
 
@@ -63,13 +75,26 @@ def wmc_count(node):
     @param node: node is a method AST node
     @return: weighted method count for the node
     """
-    if node.__class__.__name__ in WMC_OBJECTS:
-        if hasattr(node,"body"):
-            return 1 + wmc_count(node)
-        else:
-            return 1
-    else:
-        return 0
+    is_wm = 1 if node.__class__.__name__.lower() in WMC_OBJECTS else 0
+
+    if hasattr(node,"body"):
+        return is_wm + sum([wmc_count(x) for x in node.body])
+    return is_wm
+
+    # if node.__class__.__name__ in WMC_OBJECTS:
+    #     if hasattr(node,"body"):
+    #         return 1 + sum([wmc_count(x) for x in node.body])
+    #     else:
+    #         return 1
+    # else:
+    #     return 0
+
+
+def atfd_count(node):
+    if hasattr(node,"body"):
+        return 1 + sum([atfd_count(x) for x in node.body])
+    return 1 if (is_foreign_call(node) or is_foreign_access(node)) else 0
+
 
 def count_method_pairs(methods):
     """
@@ -84,6 +109,23 @@ def print_to_log(txt):
     with open("./log.txt","a+") as f:
         f.write(txt+"\n")
 
+def get_object_name(n):
+    if hasattr(n,"value"):
+        return n.value
+    elif hasattr(n,"name"):
+        return n.name
+    elif hasattr(n,"type"):
+        if hasattr(n.type,"name"):
+            return n.type.name
+        else:
+            return None
+    elif hasattr(n,"lhs"):
+        return get_object_name(n.lhs)
+    else:
+        return None
+
+
+
 def shared_attr_access(method1,method2):
     """
     @param m1,m2: method AST nodes
@@ -91,27 +133,37 @@ def shared_attr_access(method1,method2):
     """
     m1_body = method1.body
     m2_body = method2.body
-    if len(m1_body) == 0 or len(m2_body) == 0:
+
+
+
+    if m1_body is None or m2_body is None:
         return False
 
-    for m1 in m1_body:
-        if m1.__class__.__name__ == "Assignment":
-            lhs1 = m1.lhs.name
-            rhs1 = m1.rhs.name
-            for m2 in m2_body:
-                if m1.__class__.__name__ == "Assignment":
-                    lhs2 = m2.lhs.name
-                    rhs2 = m2.rhs.name
-                    if lhs1 == lhs2 or lhs1 == rhs2 or rhs1 == lhs2 or rhs1 == rhs2
-                        return True
 
+    for node1 in m1_body:
+        try:
+            n1_name = get_object_name(node1)
+            if not n1_name:
+                continue
+
+            for node2 in m2_body:
+                n2_name = get_object_name(node2)
+                if not n2_name:
+                    continue
+                if n1_name == n2_name:
+                    return True
+        except Exception as e:
+            print(traceback.format_exc())
+            print(str(e))
+            sys.exit(1)
+    
     return False
     # return random.choice([True, False])
 
-def check_god_class(c,k):
+def check_god_class(c,fname):
     """
     @param c: class AST object
-    @param k: file name key
+    @param fname: file name key
     @return: boolean representing if c is a god class
     """
     #wmc: weighted method count
@@ -155,9 +207,8 @@ def check_god_class(c,k):
         method_body = method_i.body
         if method_body:
             for b in method_body:
-                    if is_foreign_call(b) or is_foreign_access(b):
-                        atfd += 1
-                    wmc += wmc_count(b)
+                atfd += atfd_count(b)
+                wmc += wmc_count(b)
 
         for j in range(i+1, num_methods):
             method_j = methods[j]
@@ -166,16 +217,17 @@ def check_god_class(c,k):
 
     #calculate tcc 
     if total_method_pairs>0:
-        tcc = method_pairs / total_method_pairs
+        tcc = (float(method_pairs) / total_method_pairs)
     else:
         tcc = 0
 
     if (wmc >= WMC_VERY_HIGH and atfd > FEW_THRESHOLD and tcc > ONE_THIRD_THRESHOLD):
-        print("%s: %s Possible God Class (WMC=%d, ATFD=%d, TCC=%d/%d=%d)" % (k, c.name, wmc, atfd, method_pairs, total_method_pairs,tcc))
+        # print("%s: %s Possible God Class" % (fname, c.name))
+        print("%s: %s Possible God Class (WMC=%d, ATFD=%d, TCC=%d/%d=%.2f)" % (fname, c.name, wmc, atfd, method_pairs, total_method_pairs,tcc))
         return True
     else:
         #print here used for debug of non god classes
-        # print("%s: %s Not God Class (WMC=%d, ATFD=%d, TCC=%d)" % (k, c.name,wmc, atfd, tcc))
+        # print("%s: %s Not God Class (WMC=%d, ATFD=%d, TCC=%d/%d=%.2f)" % (fname, c.name,wmc, atfd, method_pairs, total_method_pairs,tcc))
         return False
 
 """

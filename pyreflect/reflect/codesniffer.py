@@ -6,8 +6,9 @@ import plyj.model as m
 import os, json, sys
 import sys, argparse, time
 # from clint.textui import colored, puts
-#
-OUTFILE_BASE = "../website/app/trees/project_"
+
+#use current directory to output program trees
+TREE_FILE_BASE = "./"
 
 """
 REFACTOR STRINGS
@@ -108,15 +109,17 @@ class CodeSniffer:
 
 
     def output_program_tree(self, test_num):
-        c_dict = {}
-        c_dict["name"] = "Test Project " + str(test_num)
-        c_dict["children"] = []
+        
 
         # print("Test: " + str(self.folder))
         print(self.files)
         #iterate through all the files in the testfolder
-        for k in self.trees:
-            tree = self.trees[k]
+        for fname in self.trees:
+            base_name = os.path.splitext(os.path.basename(fname))[0]
+            c_dict = {}
+            c_dict["name"] = base_name#"Test Project " + str(test_num)
+            c_dict["children"] = []
+            tree = self.trees[fname]
             if tree is None:
                 continue
             print("===packages===")
@@ -128,18 +131,18 @@ class CodeSniffer:
             print("===list of declared types===")
             for t in tree.type_declarations:
                 if t.__class__.__name__ == "ClassDeclaration":
-                    c_dict["children"].append(get_children(t))
+                    c_dict["children"].append(sm.get_children(t))
                     # c_dict["children"][-1] = parse_class(t.name, t)
             # parse_types(java_file, tree.type_declarations)
 
 
-        #write the tree dictionary to file
-        # out_file = "./project_" + str(test_num) + ".json"
-        out_file = OUTFILE_BASE + str(test_num) + ".json"
-        f = open(out_file, "w" )
-        f.write(json.dumps(c_dict))
-        f.close()
-        print("Wrote %s tree to %s" % (k, out_file))
+            #write the tree dictionary to file
+            # out_file = "./project_" + str(test_num) + ".json"
+            out_file = TREE_FILE_BASE + base_name + "_project.json"
+            with open(out_file, "w" ) as f:
+                f.write(json.dumps(c_dict))
+    
+            print("Wrote %s tree to %s" % (fname, out_file))
 
 
 
@@ -251,6 +254,6 @@ class CodeSniffer:
                     found+=1
 
         if found:
-            print(GOD_CLASS)
+            print(str(found) + " violations - " + GOD_CLASS)
         else:
             print("No God Classes found")

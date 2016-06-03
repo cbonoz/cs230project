@@ -162,10 +162,10 @@ angular.module('websiteApp')
 
          //Watch 'data' and run scope.render(newVal) whenever it changes
          //Use true for 'objectEquality' property so comparisons are done on equality and not reference
-          scope.$watch('tree_data', function(){
+          scope.$watch('scope.tab', function(){
 
 
-              root = scope.tree_data;
+              root = scope.tab.content
               console.log(root)
               if (root == undefined || !root.hasOwnProperty("name")) {
                 return;

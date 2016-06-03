@@ -9,7 +9,7 @@
  */
 angular.module('websiteApp')
   .factory('jsonGetter', function($timeout, $http) {
-    var Webtest = {
+    var JsonTest = {
         fetch: function(file_name) {
             console.log("getting " + file_name)
             return $timeout(function() {
@@ -17,8 +17,9 @@ angular.module('websiteApp')
                     return response.data;
                 });
             }, 30);
-        }
+        },
+
     }
 
-    return Webtest;
+    return JsonTest;
 });

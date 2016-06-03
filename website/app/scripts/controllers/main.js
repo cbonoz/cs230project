@@ -6,94 +6,61 @@
  * @description
  * # MainCtrl
  * Controller of the websiteApp
+ * for each tree that the user encounters, remember it and append it to the list
  */
 
 angular.module('websiteApp')
-  .controller('MainCtrl', function ($scope, fileSystem, jsonGetter, _) {
+  .controller('MainCtrl', function ($scope, fileSystem, jsonGetter, _, $log) {
+    var tabs = [
+          { title: 'Project Tab', content: ""}],
+          selected = null,
+          previous = null;
+    $scope.tabs = tabs;
+    $scope.treeData = {}
+    $scope.selectedIndex = 0;
 
-    $scope.folder = "./trees/"
-    // $scope.folder = "../../../../visualize/trees/"
-    // $scope.folder = "~/app/trees/"
 
-
-    $scope.loadJson = (tree_file) => {
-        $scope.selected_file = tree_file;
-        console.log("loading " + tree_file)
-        jsonGetter.fetch(tree_file).then(function(data) {
-            console.log(JSON.stringify(data))
-            $scope.tree_data = data;
-            $scope.bad_data=false;
-        }, function(error) {
-            console.log("error")
-            $scope.tree_data = {}
-            $scope.bad_data = true;
-        });
-    }
-
-    $scope.$watch('folder', function(newValue, oldValue) {
-        console.log(newValue);
-        $scope.updateFolder();
+    $scope.$watch('selectedIndex', function(current, old){
+      previous = selected;
+      selected = tabs[current];
+      if ( old + 1 && (old != current)) $log.debug('Goodbye ' + previous.title + '!');
+      if ( current + 1 )                $log.debug('Hello ' + selected.title + '!');
     });
 
+    $scope.addTab = function (title, view) {
+      view = view || title + " Content View";
+      tabs.push({ title: title, content: view, disabled: false});
+    };
 
-    $scope.updateFolder = () => {
-        // $scope.tabs = fileSystem.getFolderContents($scope.folder);
-        let tree_file = $scope.folder + "project_" + ($scope.selected_index+1) + ".json";
-        $scope.loadJson(tree_file);
+    $scope.removeTab = function (tab) {
+      var index = tabs.indexOf(tab);
+      tabs.splice(index, 1);
+    };
+
+    $scope.clearProjects = () => {
+        $scope.tabs = []
+        tabs = []
+        console.log("clearProjects " + JSON.stringify($scope.tabs))
     }
 
-    $scope.tabs = _.map(_.range(1,11), (x) => { return "project_" + x; })
-    // $scope.tabs = Directory.GetFiles($scope.folder)
-    // $scope.tabs = []
+    $scope.projectFile = "./trees/output_tree.json";
 
-    $scope.tab_content = '<tree-graph class="full-screen" data="tree_data" ng-hide="bad_data"></tree-graph><h4 ng-show="bad_data">No test file <i>{{tab}}.json</i> found</h4>'
+    $scope.loadJson = () => {
+        var treeFile = $scope.projectFile;
+        console.log("loading: " + treeFile);
+        //use a factory to fetch the data
+        jsonGetter.fetch(treeFile).then(function(data) {
+            let fname = treeFile.split('/').pop();
+            console.log("fname success: " + fname + ", " + JSON.stringify(data));
 
+            tabs.push({ title: fname, content: data, disabled: false});
+            $scope.badData = false;
+            $scope.treeData = data;
 
-    let getFiles = function(dir) {
-        $scope.files = []
-        fileSystem.getFolderContents(dir).then(function(entries) {
-            for(var i = 0; i<entries.length; i++) {
-                $scope.files.push(entries[i].fullPath);
-            }
-            console.log($scope.files)
-        }, function(err) {
-            console.log(err);
-            $window.alert(err.text);
+        }, function(error) {
+            console.log("error: " + JSON.stringify(error));
+            $scope.badData = true;
         });
-    };
-
-    let getUsageInfo = function() {
-        $scope.files = []
-        fileSystem.getCurrentUsage().then(function(usage) {
-            $scope.files.push(usage.used + " / " + usage.quota);
-        }, function(err) {
-            console.log(err);
-            $window.alert(err.text);
-        });
-    };
-
-
-
-    this.awesomeThings = [
-      'HTML5 Boilerplate',
-      'AngularJS',
-      'Karma'
-    ];
-
-    $scope.awesomeThings = this.awesomeThings;
-
-
-     $scope.friends = [
-        {name:'John', age:25, gender:'boy'},
-        {name:'Jessie', age:30, gender:'girl'},
-        {name:'Johanna', age:28, gender:'girl'},
-        {name:'Joy', age:15, gender:'girl'},
-        {name:'Mary', age:28, gender:'girl'},
-        {name:'Peter', age:95, gender:'boy'},
-        {name:'Sebastian', age:50, gender:'boy'},
-        {name:'Erika', age:27, gender:'girl'},
-        {name:'Patrick', age:40, gender:'boy'},
-        {name:'Samantha', age:60, gender:'girl'}
-      ];
+    }
 
   });
