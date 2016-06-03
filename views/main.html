@@ -1,60 +1,36 @@
-<!-- <div class="jumbotron">
-  <h1>'Allo, 'Allo!</h1>
-  <p class="lead">
-    <img src="images/yeoman.png" alt="I'm Yeoman"><br>
-    Always a pleasure scaffolding your apps.
-  </p>
-  <p><a class="btn btn-lg btn-success" ng-href="#/">Splendid!<span class="glyphicon glyphicon-ok"></span></a></p>
-</div>
 
-<div class="row marketing">
-  <h4>HTML5 Boilerplate</h4>
-  <p>
-    HTML5 Boilerplate is a professional front-end template for building fast, robust, and adaptable web apps or sites.
-  </p>
+<div class="sample tabsdemoDynamicTabs form-horizontal">
 
-  <h4>Angular</h4>
-  <p>
-    AngularJS is a toolset for building the framework most suited to your application development.
-  </p>
+<h1>Pyreflect Tree Render</h1>
+ <div class="form-group" style='max-width:90%; margin-left: 20px'>
+    <h3>Enter Json file path:</h3>
+  <input id="path" ng-model="projectFile" type="text" placeholder="{{projectFile}}" cols="100" class="form-control"/>
+  <p>Program will render the Pyreflect-generated JSON file above as a project tree. Enter a path to begin.</p> 
 
-  <h4>Karma</h4>
-  <p>Spectacular Test Runner for JavaScript.</p>
-</div>
- -->
+    <button type="submit" class="btn btn-info" ng-click="loadJson()">Load File</button></h3>
+  </div>
+  
 
- <md-content>
-  <h3>Test Results: <input id="path" ng-model="folder" type="text" placeholder="{{folder}}" cols="100"/>  <button type="submit" class="btn btn-success">Load Folder</button></h3>
-  <p>Program will render up to 10 test project json files located in given directory. Files should follow 'project_N.json' naming format.</p>
-    <md-tabs md-dynamic-height="" md-border-bottom="" md-selected="selected_index">
-     <md-tab label="{{tab}}" ng-repeat="tab in tabs" md-on-select="updateFolder()">
+
+  <md-content class="md-padding">
+    <md-tabs md-dynamic-height="" md-selected="selectedIndex" md-border-bottom="" md-autoselect="">
+      <md-tab ng-repeat="tab in tabs" ng-disabled="tab.disabled" label="{{tab.title}}">
+        <div class="demo-tab tab{{$index%4}}" style="padding: 25px; text-align: center;">
+
+
+          <h4 ng-show="badData">No test file <i>{{projectFile}}</i> found</h4>
+
+
+          <tree-graph class="full-screen" data="treeData" ng-hide="badData"></tree-graph>
+
+             <br>
+              <md-button class="md-primary md-raised pull-left" ng-click="removeTab( tab )" ng-disabled="tabs.length <= 1">Remove Tab</md-button>
+     
+         </div>
+        
       </md-tab>
     </md-tabs>
-
-      <md-content class="md-padding">
-      <tree-graph class="full-screen" data="tree_data" ng-hide="bad_data"></tree-graph><h4 ng-show="bad_data">No test file <i>{{selected_file}}</i> found</h4>'
-      </md-content>
-
-      <!-- <md-tab label="one">
-        <md-content class="md-padding">
-          <h1 class="md-display-2">Tab One</h1>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla venenatis ante augue. Phasellus volutpat neque ac dui mattis vulputate. Etiam consequat aliquam cursus. In sodales pretium ultrices. Maecenas lectus est, sollicitudin consectetur felis nec, feugiat ultricies mi.</p>
-        </md-content>
-      </md-tab>
-      <md-tab label="two">
-        <md-content class="md-padding">
-          <h1 class="md-display-2">Tab Two</h1>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla venenatis ante augue. Phasellus volutpat neque ac dui mattis vulputate. Etiam consequat aliquam cursus. In sodales pretium ultrices. Maecenas lectus est, sollicitudin consectetur felis nec, feugiat ultricies mi. Aliquam erat volutpat. Nam placerat, tortor in ultrices porttitor, orci enim rutrum enim, vel tempor sapien arcu a tellus. Vivamus convallis sodales ante varius gravida. Curabitur a purus vel augue ultrices ultricies id a nisl. Nullam malesuada consequat diam, a facilisis tortor volutpat et. Sed urna dolor, aliquet vitae posuere vulputate, euismod ac lorem. Sed felis risus, pulvinar at interdum quis, vehicula sed odio. Phasellus in enim venenatis, iaculis tortor eu, bibendum ante. Donec ac tellus dictum neque volutpat blandit. Praesent efficitur faucibus risus, ac auctor purus porttitor vitae. Phasellus ornare dui nec orci posuere, nec luctus mauris semper.</p>
-          <p>Morbi viverra, ante vel aliquet tincidunt, leo dolor pharetra quam, at semper massa orci nec magna. Donec posuere nec sapien sed laoreet. Etiam cursus nunc in condimentum facilisis. Etiam in tempor tortor. Vivamus faucibus egestas enim, at convallis diam pulvinar vel. Cras ac orci eget nisi maximus cursus. Nunc urna libero, viverra sit amet nisl at, hendrerit tempor turpis. Maecenas facilisis convallis mi vel tempor. Nullam vitae nunc leo. Cras sed nisl consectetur, rhoncus sapien sit amet, tempus sapien.</p>
-          <p>Integer turpis erat, porttitor vitae mi faucibus, laoreet interdum tellus. Curabitur posuere molestie dictum. Morbi eget congue risus, quis rhoncus quam. Suspendisse vitae hendrerit erat, at posuere mi. Cras eu fermentum nunc. Sed id ante eu orci commodo volutpat non ac est. Praesent ligula diam, congue eu enim scelerisque, finibus commodo lectus.</p>
-        </md-content>
-      </md-tab>
-      <md-tab label="three">
-        <md-content class="md-padding">
-          <h1 class="md-display-2">Tab Three</h1>
-          <p>Integer turpis erat, porttitor vitae mi faucibus, laoreet interdum tellus. Curabitur posuere molestie dictum. Morbi eget congue risus, quis rhoncus quam. Suspendisse vitae hendrerit erat, at posuere mi. Cras eu fermentum nunc. Sed id ante eu orci commodo volutpat non ac est. Praesent ligula diam, congue eu enim scelerisque, finibus commodo lectus.</p>
-        </md-content>
-      </md-tab> -->
-
   </md-content>
 
+  
+</div>
