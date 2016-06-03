@@ -69,8 +69,8 @@ angular.module('websiteApp')
 
     var last = {
       bottom: true,
-      top: false,
-      left: true,
+      top: true,
+      left: false,
       right: false
     };
 
