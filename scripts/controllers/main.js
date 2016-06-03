@@ -27,21 +27,16 @@ angular.module('websiteApp')
       if ( current + 1 )                $log.debug('Hello ' + selected.title + '!');
     });
 
-    $scope.addTab = function (title, view) {
-      view = view || title + " Content View";
-      tabs.push({ title: title, content: view, disabled: false});
-    };
+    // $scope.addTab = function (title, view) {
+    //   view = view || title + " Content View";
+    //   tabs.push({ title: title, content: view, disabled: false});
+    // };
 
     $scope.removeTab = function (tab) {
       var index = tabs.indexOf(tab);
       tabs.splice(index, 1);
     };
 
-    $scope.clearProjects = () => {
-        $scope.tabs = []
-        tabs = []
-        console.log("clearProjects " + JSON.stringify($scope.tabs))
-    }
 
     $scope.projectFile = "./trees/output_tree.json";
     var n = 0;
@@ -49,6 +44,7 @@ angular.module('websiteApp')
     $scope.loadText = () => {
         n+=1
         let fname = "tree" + n + ".json"
+        console.log("loadText: " + $scope.jsonText)
         tabs.push({ title: fname, content: $scope.jsonText, disabled: false});
         $scope.badData = false;
         $scope.treeData = $scope.jsonText;
