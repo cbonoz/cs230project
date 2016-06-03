@@ -7,7 +7,12 @@
   <input id="path" ng-model="projectFile" type="text" placeholder="{{projectFile}}" cols="100" class="form-control"/>
   <p>Program will render the Pyreflect-generated JSON file above as a project tree. Enter a path to begin.</p> 
 
-    <button type="submit" class="btn btn-info" ng-click="loadJson()">Load File</button></h3>
+    <button type="submit" class="btn btn-info" ng-click="loadJson()">Load File</button>
+
+    <input id="path" ng-model="jsonText" type="textarea" placeholder="Enter json tree text" cols="100" class="form-control"/>
+
+     <button type="submit" class="btn btn-success" ng-click="loadText()">Load Text</button>
+
   </div>
   
 

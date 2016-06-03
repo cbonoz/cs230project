@@ -44,6 +44,17 @@ angular.module('websiteApp')
     }
 
     $scope.projectFile = "./trees/output_tree.json";
+    n = 0;
+
+    $scope.loadText = () => {
+        n+=1
+        let fname = "tree" + n + ".json"
+        tabs.push({ title: fname, content: $scope.jsonText, disabled: false});
+        $scope.badData = false;
+        $scope.treeData = data;
+
+        $scope.showSimpleToast("JSON Successfully loaded");
+    }
 
     $scope.loadJson = () => {
         var treeFile = $scope.projectFile;
@@ -57,7 +68,7 @@ angular.module('websiteApp')
             $scope.badData = false;
             $scope.treeData = data;
 
-            $scope.showSimpleToast();
+            $scope.showSimpleToast(treeFile + ' Successfully Loaded');
 
         }, function(error) {
             console.log("error: " + JSON.stringify(error));
@@ -95,13 +106,13 @@ angular.module('websiteApp')
       last = angular.extend({},current);
     }
 
-    $scope.showSimpleToast = function() {
+    $scope.showSimpleToast = function(msg) {
       console.log("showSimpleToast")
       var pinTo = $scope.getToastPosition();
 
       $mdToast.show(
         $mdToast.simple()
-          .textContent($scope.projectFile + ' Successfully Loaded')
+          .textContent(msg)
           .position(pinTo )
           .hideDelay(3000)
       );
