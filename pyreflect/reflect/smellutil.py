@@ -33,7 +33,7 @@ FEW_THRESHOLD = 3
 
  # * One third is a low value.
  # * See: Lanza. Object-Oriented Metrics in Practice. Page 17.
-ONE_THIRD_THRESHOLD = .1/3.0
+ONE_THIRD_THRESHOLD = 1/3.0
 #self.trees contains all the java file parse trees indexed by filename
 """ 
 END GOD CLASS THRESHOLD VALUES
@@ -221,7 +221,7 @@ def check_god_class(c,fname):
     else:
         tcc = 0
 
-    if (wmc >= WMC_VERY_HIGH and atfd > FEW_THRESHOLD and tcc > ONE_THIRD_THRESHOLD):
+    if (wmc >= WMC_VERY_HIGH and atfd > FEW_THRESHOLD and tcc < ONE_THIRD_THRESHOLD):
         # print("%s: %s Possible God Class" % (fname, c.name))
         print("%s: %s Possible God Class (WMC=%d, ATFD=%d, TCC=%d/%d=%.2f)" % (fname, c.name, wmc, atfd, method_pairs, total_method_pairs,tcc))
         return True
@@ -256,7 +256,13 @@ def get_parameter_length(method):
 
 def get_class_length(c):
     #number of declarations in the class body
-    return len(c.body)
+
+
+    if c.body:
+        # for s in c.body:
+        #     print(s)
+        return len(c.body)
+    return 0
 
 def get_method_length(method):
     #length of method (including nested nodes)
