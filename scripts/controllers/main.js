@@ -44,7 +44,7 @@ angular.module('websiteApp')
     }
 
     $scope.projectFile = "./trees/output_tree.json";
-    n = 0;
+    var n = 0;
 
     $scope.loadText = () => {
         n+=1
