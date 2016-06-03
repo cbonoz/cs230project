@@ -4,9 +4,13 @@
 <h1>Pyreflect Tree Render</h1>
  <div class="form-group" style='max-width:90%; margin-left: 20px'>
     <h3>Enter Json file path:</h3>
-  <input id="path" ng-model="projectFile" type="text" placeholder="{{projectFile}}" cols="100" ng-change="loadJson()" class="form-control"/>
+  <input id="path" ng-model="projectFile" type="text" placeholder="{{projectFile}}" cols="100" class="form-control"/>
   <p>Program will render the Pyreflect-generated JSON file above as a project tree. Enter a path to begin.</p> 
+
+    <button type="submit" class="btn btn-info" ng-click="loadJson()">Load File</button></h3>
   </div>
+  
+
 
   <md-content class="md-padding">
     <md-tabs md-dynamic-height="" md-selected="selectedIndex" md-border-bottom="" md-autoselect="">
@@ -28,5 +32,5 @@
     </md-tabs>
   </md-content>
 
-
+  
 </div>
