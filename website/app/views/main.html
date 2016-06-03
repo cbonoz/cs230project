@@ -5,9 +5,17 @@
  <div class="form-group" style='max-width:90%; margin-left: 20px'>
     <h3>Enter Json file path:</h3>
   <input id="path" ng-model="projectFile" type="text" placeholder="{{projectFile}}" cols="100" class="form-control"/>
-  <p>Program will render the Pyreflect-generated JSON file above as a project tree. Enter a path to begin.</p> 
+  <p>Try some example files on the server: ./trees/output_tree{1..15}.json. Program will render the Pyreflect-generated JSON file above as a project tree. Enter a path to begin.</p> 
 
-    <button type="submit" class="btn btn-info" ng-click="loadJson()">Load File</button></h3>
+    <button type="submit" class="btn btn-info" ng-click="loadJson()">Load File</button>
+<!-- 
+  <br/>
+
+
+    <input id="jsontext" ng-model="jsonText" type="textarea" placeholder="Enter json tree text" cols="100" rows="20class="form-control"/>
+
+     <button type="submit" class="btn btn-success" ng-click="loadText()">Load Custom Text</button>
+ -->
   </div>
   
 

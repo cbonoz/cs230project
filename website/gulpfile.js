@@ -9,6 +9,13 @@ var rimraf = require('rimraf');
 var wiredep = require('wiredep').stream;
 var runSequence = require('run-sequence');
 
+var ghPages = require('gulp-gh-pages');
+
+gulp.task('deploy', function() {
+  return gulp.src('./app/**/*')
+    .pipe(ghPages());
+});
+
 var yeoman = {
   app: require('./bower.json').appPath || 'app',
   dist: 'dist'
@@ -170,10 +177,10 @@ gulp.task('client:build', ['html', 'styles'], function () {
     .pipe($.useref({searchPath: [yeoman.app, '.tmp']}))
     .pipe(jsFilter)
     .pipe($.ngAnnotate())
-    .pipe($.uglify())
+    // .pipe($.uglify())
     .pipe(jsFilter.restore())
     .pipe(cssFilter)
-    .pipe($.minifyCss({cache: true}))
+    // .pipe($.minifyCss({cache: true}))
     .pipe(cssFilter.restore())
     .pipe($.rev())
     .pipe($.revReplace())
