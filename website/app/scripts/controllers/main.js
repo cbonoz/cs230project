@@ -27,11 +27,6 @@ angular.module('websiteApp')
       if ( current + 1 )                $log.debug('Hello ' + selected.title + '!');
     });
 
-    // $scope.addTab = function (title, view) {
-    //   view = view || title + " Content View";
-    //   tabs.push({ title: title, content: view, disabled: false});
-    // };
-
     $scope.removeTab = function (tab) {
       var index = tabs.indexOf(tab);
       tabs.splice(index, 1);
@@ -44,10 +39,11 @@ angular.module('websiteApp')
     $scope.loadText = () => {
         n+=1
         let fname = "tree" + n + ".json"
-        console.log("loadText: " + $scope.jsonText)
-        tabs.push({ title: fname, content: $scope.jsonText, disabled: false});
+        let data = JSON.parse($scope.jsonText)
+        console.log("loadText: " + data)
+        tabs.push({ title: fname, content: data, disabled: false});
         $scope.badData = false;
-        $scope.treeData = $scope.jsonText;
+        $scope.treeData = data;
 
         $scope.showSimpleToast("JSON Successfully loaded");
     }
@@ -58,7 +54,7 @@ angular.module('websiteApp')
         //use a factory to fetch the data
         jsonGetter.fetch(treeFile).then(function(data) {
             let fname = treeFile.split('/').pop();
-            console.log("fname success: " + fname + ", " + JSON.stringify(data));
+            console.log("fname success: " + fname + ", \ndata.length " + data.length);
 
             tabs.push({ title: fname, content: data, disabled: false});
             $scope.badData = false;
@@ -72,12 +68,15 @@ angular.module('websiteApp')
         });
     }
 
-    //logic for loaded toast
+    //***
+    //controller logic for rendering toast below
+    //***
 
+    //screen location for the toast
     var last = {
-      bottom: true,
+      bottom: false,
       top: true,
-      left: false,
+      left: true,
       right: false
     };
 

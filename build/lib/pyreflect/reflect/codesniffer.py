@@ -34,6 +34,17 @@ def enablePrint():
     sys.stdout = sys.__stdout__
     sys.stderr = sys.__stderr__
 
+# def arg_check(f):
+#     def wrapper(*args, **kw):
+#         print("args in decorator: " + str(args))
+#         if args[1]>0:
+#             return f(*args, **kw)
+#         else:
+#             return (lambda: print("Error: duplicate code limit must be greater than 0"))
+
+#     return wrapper
+
+
 # https://github.com/musiKk/plyj/blob/c27d159b2fffe241a2d091e1be3d79790b216732/example/symbols_visitor.py
 class MethodVisitor(m.Visitor):
     def __init__(self):
@@ -127,7 +138,7 @@ class CodeSniffer:
 
             #write the tree dictionary to file
             # out_file = "./project_" + str(test_num) + ".json"
-            out_file = TREE_FILE_BASE + base_name + "_.json"
+            out_file = TREE_FILE_BASE + base_name + "_project.json"
             with open(out_file, "w" ) as f:
                 f.write(json.dumps(c_dict))
     

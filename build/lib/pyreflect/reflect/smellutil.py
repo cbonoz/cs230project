@@ -81,6 +81,14 @@ def wmc_count(node):
         return is_wm + sum([wmc_count(x) for x in node.body])
     return is_wm
 
+    # if node.__class__.__name__ in WMC_OBJECTS:
+    #     if hasattr(node,"body"):
+    #         return 1 + sum([wmc_count(x) for x in node.body])
+    #     else:
+    #         return 1
+    # else:
+    #     return 0
+
 
 def atfd_count(node):
     if hasattr(node,"body"):
@@ -248,7 +256,11 @@ def get_parameter_length(method):
 
 def get_class_length(c):
     #number of declarations in the class body
+
+
     if c.body:
+        # for s in c.body:
+        #     print(s)
         return len(c.body)
     return 0
 
@@ -290,69 +302,57 @@ def get_method_length(method):
     return 1
 
 
-#Text Labels for tree nodes
 def get_node_name(i_name, c_name):
     return i_name + " (" + c_name + ")" 
-
-def get_type(node_type):
-    if hasattr(node_type, "name"):
-        if hasattr(node_type.name, "value"):
-            return str(node_type.name.value)
-        return str(node_type.name)
-    return str(node_type)
-
 
 def get_children(node):   
     #recursively iterates through node children in order to construct json object
     temp_obj = {}
     _name = node.__class__.__name__
     
-    #check core elements
     if _name == "ClassDeclaration":
         temp_obj['name'] = get_node_name(node.name,"Class")
         body_elements = getattr(node,"body")
         if body_elements is not None:
-            temp_obj['children'] = filter(lambda x: x != {}, [get_children(x) for x in body_elements])
+            temp_obj['children'] = [get_children(x) for x in body_elements]
     elif _name in ["FieldDeclaration","VariableDeclaration"]:
-
-        temp_obj['name'] = get_node_name(get_type(node.type)  + " " + ",".join([x.variable.name for x in node.variable_declarators]), "Field")
-
+        temp_obj['name'] = get_node_name(",".join([x.variable.name for x in node.variable_declarators]), "Field")
     elif _name == "MethodDeclaration":
-        temp_obj['name'] = get_node_name(get_type(node.return_type) + " " + node.name,"Method")
+        temp_obj['name'] = get_node_name(node.name,"Method")
         body_elements = getattr(node,"body")
         if body_elements is not None:
-            temp_obj['children'] = filter(lambda x: x != {}, [get_children(x) for x in body_elements])
-
+            temp_obj['children'] = [get_children(x) for x in body_elements]
+    elif _name == "IfThenElse":
+        temp_obj['name'] = _name
+        if hasattr(node, "if_true"):
+            temp_obj['children'] = []
+            if node.if_true.__class__.__name__ == "Block":
+                temp_obj['children'].append({"name": "if_true", "children": 
+                    [get_children(x) for x in node.if_true.statements]})
+        if hasattr(node, "if_false"):
+            if node.if_false.__class__.__name__ == "Block":
+                temp_obj['children'].append({"name": "if_false", "children": [get_children(x) for x in node.if_false.statements]})
     elif _name == "Return":
-        if hasattr(node, "result"):
-            if hasattr(node.result, "name"):
-                temp_obj['name'] = get_node_name(node.result.name, "Return")
-    elif _name == "VariableDeclaration":
-        temp_obj['name'] = get_node_name(node.variable.name,"Variable")
-
+        pass
     else: #other class types (default behavior)
 
-        #assign name
         if hasattr(node, "name"):
             temp_obj['name'] = get_node_name(node.name,_name)
         else:
             temp_obj['name'] = _name
 
-        #assign children
-        if _name in ["For", "DoWhile", "While", "SwitchCase"]:
+        # if _name == "Return":
+        #     if hasattr(node, "result"):
+        #         # temp_obj['children'] = [get_children(node.result)]
+        #         temp_obj['name'] += "(" + str(node.result.name) + ")"
+        # elif _name == "Assignment":
+        #     if hasattr(node, "rhs"):
+        #         # temp_obj['children'] = [get_children(node.rhs)]
+        #         temp_obj['name'] += "(" + str(node.rhs.name)+ ")"
+        if _name in ["For", "DoWhile", "While"]:
             body_elements = getattr(node,"body")
             if body_elements is not None:
                 temp_obj['children'] = [get_children(x) for x in body_elements]
-        elif _name == "IfThenElse":
-            if hasattr(node, "if_true"):
-                temp_obj['children'] = []
-                if node.if_true.__class__.__name__ == "Block":
-                    temp_obj['children'].append({"name": "if_true", "children": 
-                        filter(lambda x: x != {}, [get_children(x) for x in node.if_true.statements])})
-            if hasattr(node, "if_false"):
-                if node.if_false.__class__.__name__ == "Block":
-                    temp_obj['children'].append({"name": "if_false", "children": 
-                        filter(lambda x: x != {}, [get_children(x) for x in node.if_false.statements])})
 
 
     return temp_obj

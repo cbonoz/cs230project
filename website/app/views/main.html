@@ -3,25 +3,24 @@
 
 <h1>Pyreflect Tree Render</h1>
  <div class="form-group" style='max-width:90%; margin-left: 20px'>
-    <h3>Enter Json file path:</h3>
-  <input id="path" ng-model="projectFile" type="text" placeholder="{{projectFile}}" cols="100" class="form-control"/>
-  <p>Try some example files on the server: ./trees/output_tree{1..15}.json. Program will render the Pyreflect-generated JSON file above as a project tree. Enter a path to begin.</p> 
+    <h3>Load Json File:</h3>
+  <input id="path" ng-model="projectFile" type="text" placeholder="{{projectFile}}" rows="1" cols="30" class="form-control"/>
+  <p>Try some example files on the server: ./trees/output_tree{1..15}.json. Program will render the Pyreflect-generated JSON file url above as a project tree. Enter the path above.</p> 
 
     <button type="submit" class="btn btn-info" ng-click="loadJson()">Load File</button>
-<!-- 
+
   <br/>
+  <hr/>
 
-
-    <input id="jsontext" ng-model="jsonText" type="textarea" placeholder="Enter json tree text" cols="100" rows="20class="form-control"/>
+    <textarea id="jsontext" ng-model="jsonText" placeholder="Enter json tree text" cols="70" rows="4" class="form-control"/>
+    <p>Or enter your own json tree object text here.</p>
 
      <button type="submit" class="btn btn-success" ng-click="loadText()">Load Custom Text</button>
- -->
+
   </div>
   
-
-
   <md-content class="md-padding">
-    <md-tabs md-dynamic-height="" md-selected="selectedIndex" md-border-bottom="" md-autoselect="">
+    <md-tabs md-dynamic-height="" md-dynamic-width=""  md-selected="selectedIndex" md-border-bottom="" md-autoselect="">
       <md-tab ng-repeat="tab in tabs" ng-disabled="tab.disabled" label="{{tab.title}}">
         <div class="demo-tab tab{{$index%4}}" style="padding: 25px; text-align: center;">
 

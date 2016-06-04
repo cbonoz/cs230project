@@ -32,8 +32,6 @@ Render Visualizations
 
 From website directory.
 
-1. Run the runtests.py script from the pyreflect folder.
-
 For first time configuration, run the following
 
 1. bower install

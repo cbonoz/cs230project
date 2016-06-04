@@ -166,8 +166,9 @@ angular.module('websiteApp')
 
 
               root = scope.tab.content
-              console.log(root)
+              console.log("treegraph: " + root)
               if (root == undefined || !root.hasOwnProperty("name")) {
+                console.log("treegraph: Error rendering tree root")
                 return;
               }
 
