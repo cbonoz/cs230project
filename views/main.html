@@ -27,11 +27,12 @@
 
           <h4 ng-show="badData">No test file <i>{{projectFile}}</i> found</h4>
 
+            <br>
+              <md-button class="md-primary md-raised pull-left" ng-click="removeTab( tab )" ng-disabled="tabs.length <= 1">Remove Tab</md-button>
 
           <tree-graph class="full-screen" data="treeData" ng-hide="badData"></tree-graph>
 
-             <br>
-              <md-button class="md-primary md-raised pull-left" ng-click="removeTab( tab )" ng-disabled="tabs.length <= 1">Remove Tab</md-button>
+           
      
          </div>
         
