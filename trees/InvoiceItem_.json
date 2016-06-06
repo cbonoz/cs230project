@@ -1,0 +1,1 @@
+{"name": "InvoiceItem", "children": [{"name": "InvoiceItem (Class)", "children": [{"name": "String itemName (Field)"}, {"name": "int quantity (Field)"}, {"name": "double unitPrice (Field)"}, {"name": "InvoiceItem (ConstructorDeclaration)"}, {"name": "double getSubtotal (Method)", "children": []}]}]}

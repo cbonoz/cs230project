@@ -1,0 +1,1 @@
+{"name": "CustomerSummaryView", "children": [{"name": "CustomerSummaryView (Class)", "children": [{"name": "Customer customer (Field)"}, {"name": "CustomerSummaryView (ConstructorDeclaration)"}, {"name": "String getCustomerSummary (Method)", "children": [{"name": "Address address (Field)"}]}]}]}

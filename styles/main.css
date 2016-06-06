@@ -12,6 +12,11 @@ body {
   padding: 0;
 }
 
+.overflow-scroll {
+  overflow-x: scroll;
+  overflow-y: scroll;
+}
+
 .centered {
   vertical-align: center;
   margin: 0 auto;

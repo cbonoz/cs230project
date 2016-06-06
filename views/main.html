@@ -1,7 +1,7 @@
 
 <div class="sample tabsdemoDynamicTabs form-horizontal">
 
-<h1>Pyreflect Tree Render</h1>
+<h1>Pyreflect Declaration Tree</h1>
  <div class="form-group" style='max-width:90%; margin-left: 20px'>
     <h3>Load Json File:</h3>
   <input id="path" ng-model="projectFile" type="text" placeholder="{{projectFile}}" rows="1" cols="30" class="form-control"/>
@@ -22,7 +22,7 @@
   <md-content class="md-padding">
     <md-tabs md-dynamic-height="" md-dynamic-width=""  md-selected="selectedIndex" md-border-bottom="" md-autoselect="">
       <md-tab ng-repeat="tab in tabs" ng-disabled="tab.disabled" label="{{tab.title}}">
-        <div class="demo-tab tab{{$index%4}}" style="padding: 25px; text-align: center;">
+        <div class="demo-tab overflow-scroll tab{{$index%4}}" style="padding: 25px; text-align: center;">
 
 
           <h4 ng-show="badData">No test file <i>{{projectFile}}</i> found</h4>

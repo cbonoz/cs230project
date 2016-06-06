@@ -37,9 +37,13 @@ angular.module('websiteApp')
 
 
 
-      var margin = {top: 0, right: 120, bottom: 20, left: 120},
-          width = 960 - margin.right - margin.left,
-          height = 800 - margin.top - margin.bottom;
+      var margin = {top: 0, right: 0, bottom: 20, left: 80};
+
+      // var width = 960 - margin.right - margin.left,
+      //     height = 800 - margin.top - margin.bottom;
+
+      var width = window.innerWidth,// - margin.right - margin.left,
+          height = window.innerHeight// - margin.top - margin.bottom;
 
       var i = 0,
           duration = 750,
@@ -51,12 +55,21 @@ angular.module('websiteApp')
       var diagonal = d3.svg.diagonal()
           .projection(function(d) { return [d.y, d.x]; });
 
-      var svg = d3.select(element[0]).append("svg")
-          .attr("width",  '100%')//width + margin.right + margin.left)
-          .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+      // var svg = d3.select(element[0]).append("svg")
+      //     .attr("width",  '100%')//width + margin.right + margin.left)
+      //     .attr("height", height + margin.top + margin.bottom)
+      //   .append("g")
+      //     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+      var svg = d3.select(element[0]).append("svg")
+         .attr("width", width)//'100%')
+        .attr("height", height)//'100%')
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+        // .attr('viewBox','0 0 '+Math.min(width,height)+' '+Math.min(width,height))
+        // .attr('preserveAspectRatio','xMinYMin')
+        // .append("g")
+        // .attr("transform", "translate(" + Math.min(width,height) / 2 + "," + Math.min(width,height) / 2 + ")");
 
         // Toggle children on click.
         function click(d) {
