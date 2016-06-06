@@ -33,7 +33,7 @@ angular.module('websiteApp')
     };
 
 
-    $scope.projectFile = "./trees/Account_.json";
+    $scope.projectFile = "Account_.json";
     var n = 0;
 
     $scope.loadText = () => {
@@ -49,7 +49,7 @@ angular.module('websiteApp')
     }
 
     $scope.loadJson = () => {
-        var treeFile = $scope.projectFile;
+        var treeFile = "./trees/" + $scope.projectFile;
         console.log("loading: " + treeFile);
         //use a factory to fetch the data
         jsonGetter.fetch(treeFile).then(function(data) {
