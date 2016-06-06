@@ -34,17 +34,6 @@ def enablePrint():
     sys.stdout = sys.__stdout__
     sys.stderr = sys.__stderr__
 
-# def arg_check(f):
-#     def wrapper(*args, **kw):
-#         print("args in decorator: " + str(args))
-#         if args[1]>0:
-#             return f(*args, **kw)
-#         else:
-#             return (lambda: print("Error: duplicate code limit must be greater than 0"))
-
-#     return wrapper
-
-
 # https://github.com/musiKk/plyj/blob/c27d159b2fffe241a2d091e1be3d79790b216732/example/symbols_visitor.py
 class MethodVisitor(m.Visitor):
     def __init__(self):
@@ -122,13 +111,13 @@ class CodeSniffer:
             tree = self.trees[fname]
             if tree is None:
                 continue
-            print("===packages===")
-            print(tree.package_declaration)
-            print("===imports===")
-            print(tree.import_declarations)
+            # print("===packages===")
+            # print(tree.package_declaration)
+            # print("===imports===")
+            # print(tree.import_declarations)
             # print("===types===")
             # print(tree.type_declarations)
-            print("===list of declared types===")
+            # print("===list of declared types===")
             for t in tree.type_declarations:
                 if t.__class__.__name__ == "ClassDeclaration":
                     c_dict["children"].append(sm.get_children(t))
@@ -138,7 +127,7 @@ class CodeSniffer:
 
             #write the tree dictionary to file
             # out_file = "./project_" + str(test_num) + ".json"
-            out_file = TREE_FILE_BASE + base_name + "_project.json"
+            out_file = TREE_FILE_BASE + base_name + "_.json"
             with open(out_file, "w" ) as f:
                 f.write(json.dumps(c_dict))
     

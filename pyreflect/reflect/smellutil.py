@@ -327,6 +327,8 @@ def get_children(node):
         if hasattr(node, "result"):
             if hasattr(node.result, "name"):
                 temp_obj['name'] = get_node_name(node.result.name, "Return")
+
+        # print("Created return obj: " + str(temp_obj))
     elif _name == "VariableDeclaration":
         temp_obj['name'] = get_node_name(node.variable.name,"Variable")
 
@@ -342,7 +344,7 @@ def get_children(node):
         if _name in ["For", "DoWhile", "While", "SwitchCase"]:
             body_elements = getattr(node,"body")
             if body_elements is not None:
-                temp_obj['children'] = [get_children(x) for x in body_elements]
+                temp_obj['children'] = filter(lambda x: x != {}, [get_children(x) for x in body_elements])
         elif _name == "IfThenElse":
             if hasattr(node, "if_true"):
                 temp_obj['children'] = []

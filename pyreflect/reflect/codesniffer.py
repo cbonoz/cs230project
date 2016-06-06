@@ -111,13 +111,13 @@ class CodeSniffer:
             tree = self.trees[fname]
             if tree is None:
                 continue
-            print("===packages===")
-            print(tree.package_declaration)
-            print("===imports===")
-            print(tree.import_declarations)
+            # print("===packages===")
+            # print(tree.package_declaration)
+            # print("===imports===")
+            # print(tree.import_declarations)
             # print("===types===")
             # print(tree.type_declarations)
-            print("===list of declared types===")
+            # print("===list of declared types===")
             for t in tree.type_declarations:
                 if t.__class__.__name__ == "ClassDeclaration":
                     c_dict["children"].append(sm.get_children(t))

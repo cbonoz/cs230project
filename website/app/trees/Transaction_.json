@@ -1,0 +1,1 @@
+{"name": "Transaction", "children": [{"name": "Transaction (Class)", "children": [{"name": "boolean debit (Field)"}, {"name": "float amount (Field)"}, {"name": "Transaction (ConstructorDeclaration)"}, {"name": "boolean isDebit (Method)", "children": []}, {"name": "float getAmount (Method)", "children": []}]}]}

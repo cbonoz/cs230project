@@ -21,15 +21,17 @@ public abstract class Customer {
 
 
     public String getName() {
-
-        String txt = "there is 3 statement overlap";
-        String txt2 = "for duplicated code test";
+        Customer customer = account.getCustomer();
+        String duptext = "The shared declarations between these functions would be revealed ";
+        String duptext2 = "in the duplicate code test"
         return name;
     }
 
     public String getMyName() {
-        String txt2 = "for duplicated code test";
-        String txt = "there is 3 statement overlap";
+        String duptext2 =  "in the duplicate code test"
+        Customer customer = account.getCustomer();
+        String duptext = "The shared declarations between these functions would be revealed ";
+        String duptext +=  duptext2;
         return name;
     }
 

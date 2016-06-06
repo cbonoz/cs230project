@@ -1,0 +1,1 @@
+{"name": "VideoLibrary", "children": [{"name": "VideoLibrary (Class)", "children": [{"name": "HashMap videos (Field)"}, {"name": "boolean hasVideo (Method)", "children": []}, {"name": "void addVideo (Method)", "children": [{"name": "put (MethodInvocation)"}]}]}]}
