@@ -33,7 +33,7 @@ angular.module('websiteApp')
     };
 
 
-    $scope.projectFile = "./trees/output_tree.json";
+    $scope.projectFile = "./trees/Account_.json";
     var n = 0;
 
     $scope.loadText = () => {
